@@ -89,7 +89,7 @@ Try the live sentiment analysis app here:
 
 <img src="https://github.com/MarpakaPradeepSai/Project-Sentiment-Analysis/blob/main/Data/Images%20&%20GIFs/Screenshot%202026-02-07%20171501.png?raw=true" 
      alt="Streamlit App Demo Screenshot" 
-     width="400">
+     width="600">
      
 </div>
 
