@@ -13,14 +13,15 @@ st.set_page_config(
 )
 
 # -----------------------------------------------------------------------------
-# 1. MODEL LOADING
-#    Loads directly from your Hugging Face Repo (No manual download needed)
+# MODEL LOADING
 # -----------------------------------------------------------------------------
+# Your Hugging Face Repo ID
 MODEL_REPO = "IamPradeep/Apple-Airpods-Sentiment-Analysis-ALBERT-base-v2"
 
 @st.cache_resource
 def load_model():
     try:
+        # Load directly from Hugging Face Hub
         tokenizer = AlbertTokenizerFast.from_pretrained(MODEL_REPO)
         model = AutoModelForSequenceClassification.from_pretrained(MODEL_REPO)
         return tokenizer, model
@@ -28,86 +29,89 @@ def load_model():
         st.error(f"Error loading model from Hugging Face: {e}")
         return None, None
 
+# Load the model
 tokenizer, model = load_model()
 
 # -----------------------------------------------------------------------------
-# 2. HELPER FUNCTIONS
+# HELPER FUNCTIONS
 # -----------------------------------------------------------------------------
 
 def predict_sentiment(text):
-    # Tokenize
+    # Prepare input
     inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
-    # Predict
+    # Inference
     with torch.no_grad():
         outputs = model(**inputs)
-    # Get Probabilities
+    # Probabilities
     probs = torch.nn.functional.softmax(outputs.logits, dim=1)
     return probs.detach().numpy()[0]
 
 def get_sentiment_info(probs):
-    # Mapping based on training: 0=Negative, 1=Neutral, 2=Positive
+    # Labels corresponding to model output: 0->Negative, 1->Neutral, 2->Positive
     labels = ["Negative 😡", "Neutral 😐", "Positive 😊"]
     
-    # Original UI Colors
+    # Original reference colors
     colors = ["#F5C6CB", "#FFE8A1", "#C3E6CB"] 
     
     max_index = np.argmax(probs)
     return labels[max_index], colors[max_index]
 
 # -----------------------------------------------------------------------------
-# 3. UI & CSS (Exact Match to Request)
+# UI & CSS (Matched exactly to reference)
 # -----------------------------------------------------------------------------
+
 st.markdown(
     """
     <style>
-    /* Import Google Fonts */
+    /* Import Google Fonts - Keeping Nunito and Open Sans for general text */
     @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700&family=Open+Sans:wght@400;600&display=swap');
 
     .main {
-        background-color: #F0F2F6; 
-        font-family: 'Open Sans', sans-serif; 
+        background-color: #F0F2F6; /* Original main background color */
+        font-family: 'Open Sans', sans-serif; /* Keep Open Sans for body */
         color: #333;
     }
     h1 {
-        font-family: 'Nunito', sans-serif; 
-        color: #6a0572; 
+        font-family: 'Nunito', sans-serif; /* Keep Nunito for title */
+        color: #6a0572; /* Original title color */
         text-align: center;
-        font-size: 3em; 
+        font-size: 3em; /* Original title size */
         margin-bottom: 15px;
-        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); 
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* Original text shadow */
     }
     .stButton>button {
-        background: linear-gradient(90deg, #ff8a00, #e52e71); 
+        background: linear-gradient(90deg, #ff8a00, #e52e71); /* Original button gradient */
         color: white !important;
         border: none;
-        border-radius: 25px; 
+        border-radius: 25px; /* Original button border-radius */
         padding: 10px 20px;
-        font-size: 1.2em; 
-        font-weight: bold; 
+        font-size: 1.2em; /* Original button font-size */
+        font-weight: bold; /* Original button font-weight */
         cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease; 
-        width: 100%; /* Make button full width for better mobile view */
+        transition: transform 0.2s ease, box-shadow 0.2s ease; /* Original button transition */
+        width: 100%;
     }
     .stButton>button:hover {
-        transform: scale(1.02); 
-        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3); 
+        transform: scale(1.05); /* Original button hover transform */
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3); /* Original button hover box-shadow */
         color: white !important;
     }
     .prediction-box {
-        border-radius: 25px; 
-        padding: 20px; 
-        text-align: center; 
-        font-size: 24px; 
-        margin-top: 20px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        border-radius: 25px; /* Original prediction box border-radius */
+        padding: 10px; /* Original prediction box padding */
+        text-align: center; /* Original prediction box text-align */
+        font-size: 18px; /* Original prediction box font-size */
     }
     .stTextArea textarea {
-        border-radius: 15px; 
-        border: 1px solid #ced4da; 
-        padding: 15px; 
-        background-color: #FFFFFF; 
-        box-shadow: 3px 3px 5px #9E9E9E; 
-        font-size: 16px;
+        border-radius: 15px; /* Keep text area border-radius */
+        border: 1px solid #ced4da; /* Keep text area border */
+        padding: 10px; /* Keep text area padding */
+        background-color: #FFFFFF; /* Keep text area background */
+        box-shadow: 3px 3px 5px #9E9E9E; /* Keep text area shadow */
+    }
+    .stTextArea textarea::placeholder {
+        color: #999; /* Light gray placeholder text */
+        font-style: italic; /* Italic placeholder text */
     }
     </style>
     """,
@@ -134,12 +138,12 @@ image_urls = [
 cols = st.columns(5)
 for i, url in enumerate(image_urls):
     with cols[i]:
-        st.image(url, use_container_width=True)
+        st.image(url, width=100)
 
 st.write("") # Spacer
 
 # --- User Input Text Area ---
-user_input = st.text_area("Enter your AirPods review here:", height=150)
+user_input = st.text_area("Enter your AirPods review here", height=150)
 
 st.write("") # Spacer
 
@@ -151,22 +155,21 @@ if st.button("🔍 Analyze Sentiment"):
         st.error("Model failed to load. Please check the repo ID.")
     else:
         with st.spinner('Analyzing sentiment...'): 
-            time.sleep(0.5) # Slight delay for visual effect
+            time.sleep(0.5) # Simulate processing time
             
             # Predict
             probs = predict_sentiment(user_input)
             label, bg_color = get_sentiment_info(probs)
             confidence = np.max(probs) * 100
 
-        # --- Display Result ---
-        st.divider()
+        st.divider() 
+        
+        # --- Output Section (Restored to reference format) ---
         st.markdown(
             f"""
-            <div style="background-color:{bg_color};" class="prediction-box">
-                <h3 style="color: #333; margin:0;">
-                    <span style="font-weight: 900;">Sentiment:</span> 
-                    <span style="font-weight: 400;">{label}</span>
-                </h3>
+            <div style="background-color:{bg_color}; padding: 10px; border-radius: 25px; text-align: center;" class="prediction-box">
+                <h3><span style="font-weight: bold;">Sentiment</span>: {label}</h3>
+                <p style="margin-top: 5px; font-size: 16px;">(Confidence: {confidence:.2f}%)</p>
             </div>
             """,
             unsafe_allow_html=True
