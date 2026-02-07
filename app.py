@@ -1,8 +1,6 @@
 import streamlit as st
 from transformers import AlbertTokenizer, AutoModelForSequenceClassification
 import torch
-import requests
-import os
 import time  # For adding a loading spinner
 
 # --- Set page config MUST be the first Streamlit command ---
@@ -13,45 +11,23 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# --- Function to download model files from GitHub ---
-def download_file_from_github(url, local_path):
-    response = requests.get(url, stream=True) # Use stream=True for potentially large files
-    if response.status_code == 200:
-        with open(local_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192): # Iterate over chunks
-                if chunk: # filter out keep-alive new chunks
-                    f.write(chunk)
-    else:
-        st.error(f"Failed to download {url}: Status code {response.status_code}")
+# --- Hugging Face Model Repository ---
+MODEL_NAME = "IamPradeep/Apple-Airpods-Sentiment-Analysis-ALBERT-base-v2"
 
-# --- URLs of your ALBERT model files on GitHub ---
-repo_url = 'https://github.com/MarpakaPradeepSai/Project-Sentiment-Analysis/raw/main/ALBERT_Model'
-files = ['config.json', 'model.safetensors', 'special_tokens_map.json', 'spiece.model', 'tokenizer.json', 'tokenizer_config.json']
+# --- Cache the model loading to avoid reloading on every interaction ---
+@st.cache_resource
+def load_model():
+    tokenizer = AlbertTokenizer.from_pretrained(MODEL_NAME)
+    model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
+    return tokenizer, model
 
-# --- Create model directory if it doesn't exist ---
-model_dir = './albert_model'
-if not os.path.exists(model_dir):
-    os.makedirs(model_dir)
-
-# --- Download each file if model directory is empty or files are missing ---
-if not os.listdir(model_dir) or any(not os.path.exists(os.path.join(model_dir, file)) for file in files):
-    with st.spinner('Downloading and loading model files...'): # Show spinner while downloading
-        for file in files:
-            download_file_from_github(f"{repo_url}/{file}", os.path.join(model_dir, file))
-
-        # Load tokenizer and model after download is complete
-        try:
-            tokenizer = AlbertTokenizer.from_pretrained(model_dir)
-            model = AutoModelForSequenceClassification.from_pretrained(model_dir, num_labels=3)
-            st.success("Model files downloaded and loaded successfully!") # Success message after loading
-        except Exception as e:
-            st.error(f"Error loading model after download: {e}")
-else:
+# --- Load tokenizer and model from Hugging Face Hub ---
+with st.spinner('Loading model from Hugging Face Hub...'):
     try:
-        tokenizer = AlbertTokenizer.from_pretrained(model_dir)
-        model = AutoModelForSequenceClassification.from_pretrained(model_dir, num_labels=3)
+        tokenizer, model = load_model()
     except Exception as e:
         st.error(f"Error loading model: {e}")
+        st.stop()
 
 # --- Function to predict sentiment ---
 def predict_sentiment(text):
@@ -62,21 +38,18 @@ def predict_sentiment(text):
 
 # --- Function to map probabilities to sentiment labels and emojis ---
 def get_sentiment_label(probs):
-    sentiment_mapping = ["Negative 😡", "Neutral 😐", "Positive 😊"] # Original emojis
+    sentiment_mapping = ["Negative 😡", "Neutral 😐", "Positive 😊"]
     max_index = probs.argmax()
     return sentiment_mapping[max_index]
 
-# --- Function to get background color based on sentiment (original colors) ---
+# --- Function to get background color based on sentiment ---
 def get_background_color(label):
     if "Positive" in label:
-        return "#C3E6CB"  # Original softer green
+        return "#C3E6CB"
     elif "Neutral" in label:
-        return "#FFE8A1"  # Original softer yellow
+        return "#FFE8A1"
     else:
-        return "#F5C6CB"  # Original softer red
-
-# --- Streamlit app ---
-
+        return "#F5C6CB"
 
 # --- Custom CSS for a more attractive look ---
 st.markdown(
@@ -86,51 +59,52 @@ st.markdown(
     @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700&family=Open+Sans:wght@400;600&display=swap');
 
     .main {
-        background-color: #F0F2F6; /* Original main background color */
-        font-family: 'Open Sans', sans-serif; /* Keep Open Sans for body */
+        background-color: #F0F2F6;
+        font-family: 'Open Sans', sans-serif;
         color: #333;
     }
     h1 {
-        font-family: 'Nunito', sans-serif; /* Keep Nunito for title */
-        color: #6a0572; /* Original title color */
+        font-family: 'Nunito', sans-serif;
+        color: #6a0572;
         text-align: center;
-        font-size: 3em; /* Original title size */
+        font-size: 3em;
         margin-bottom: 15px;
-        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* Original text shadow */
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
     }
     .stButton>button {
-        background: linear-gradient(90deg, #ff8a00, #e52e71); /* Original button gradient */
+        background: linear-gradient(90deg, #ff8a00, #e52e71);
         color: white !important;
         border: none;
-        border-radius: 25px; /* Original button border-radius */
+        border-radius: 25px;
         padding: 10px 20px;
-        font-size: 1.2em; /* Original button font-size */
-        font-weight: bold; /* Original button font-weight */
+        font-size: 1.2em;
+        font-weight: bold;
         cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease; /* Original button transition */
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .stButton>button:hover {
-        transform: scale(1.05); /* Original button hover transform */
-        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3); /* Original button hover box-shadow */
+        transform: scale(1.05);
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
         color: white !important;
     }
     .prediction-box {
-        border-radius: 25px; /* Original prediction box border-radius */
-        padding: 10px; /* Original prediction box padding */
-        text-align: center; /* Original prediction box text-align */
-        font-size: 18px; /* Original prediction box font-size */
+        border-radius: 25px;
+        padding: 10px;
+        text-align: center;
+        font-size: 18px;
     }
     .stTextArea textarea {
-        border-radius: 15px; /* Keep text area border-radius */
-        border: 1px solid #ced4da; /* Keep text area border */
-        padding: 10px; /* Keep text area padding */
-        background-color: #FFFFFF; /* Keep text area background */
-        box-shadow: 3px 3px 5px #9E9E9E; /* Keep text area shadow */
+        border-radius: 15px;
+        border: 1px solid #ced4da;
+        padding: 10px;
+        background-color: #FFFFFF;
+        box-shadow: 3px 3px 5px #9E9E9E;
     }
     .stTextArea textarea::placeholder {
-        color: #999; /* Light gray placeholder text - keep if desired */
-        font-style: italic; /* Italic placeholder text - keep if desired */
+        color: #999;
+        font-style: italic;
     }
+    </style>
     """,
     unsafe_allow_html=True
 )
@@ -158,18 +132,18 @@ for i, url in enumerate(image_urls):
         st.image(url, width=100)
 
 # --- User Input Text Area ---
-user_input = st.text_area("Enter your AirPods review here") # Original placeholder, removed bold label
+user_input = st.text_area("Enter your AirPods review here")
 
 # --- Analyze Sentiment Button ---
-if st.button("🔍 Analyze Sentiment"): # Original button text and icon
+if st.button("🔍 Analyze Sentiment"):
     if user_input:
-        with st.spinner('Analyzing sentiment...'): # Keep spinner
-            time.sleep(0.5) # Simulate processing time, remove in real use if fast enough
+        with st.spinner('Analyzing sentiment...'):
+            time.sleep(0.5)
             sentiment_probs = predict_sentiment(user_input)
             sentiment_label = get_sentiment_label(sentiment_probs[0])
             background_color = get_background_color(sentiment_label)
 
-        st.divider() # Keep divider
+        st.divider()
         st.markdown(
             f"""
             <div style="background-color:{background_color}; padding: 10px; border-radius: 25px; text-align: center;" class="prediction-box">
@@ -179,4 +153,4 @@ if st.button("🔍 Analyze Sentiment"): # Original button text and icon
             unsafe_allow_html=True
         )
     else:
-        st.error("⚠️ Please enter a review to analyze.") # Keep warning message with emoji
+        st.error("⚠️ Please enter a review to analyze.")
