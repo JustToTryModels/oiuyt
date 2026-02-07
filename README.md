@@ -1,5 +1,3 @@
-
-
 <div align="center">
 
 # 🎧 Sentiment Analysis of Apple AirPods Reviews
@@ -10,7 +8,7 @@
 [![NLTK](https://img.shields.io/badge/NLTK-NLP-154f3c?style=for-the-badge&logo=python&logoColor=white)](https://www.nltk.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 
-An end-to-end NLP project that scrapes **16,000+ customer reviews** of Apple AirPods (2nd Generation) from Walmart, performs comprehensive text preprocessing and exploratory data analysis, and benchmarks **two distinct sentiment analysis approaches** — traditional Machine Learning (Logistic Regression, Naive Bayes, Random Forest) and a fine-tuned **ALBERT transformer** — to classify reviews as Positive, Neutral, or Negative with up to **100% accuracy on manual test reviews**.
+An end-to-end NLP project that collects **16,000+ customer reviews** of Apple AirPods (2nd Generation) from Walmart, performs comprehensive text preprocessing and exploratory data analysis, and benchmarks **two distinct sentiment analysis approaches** — traditional Machine Learning (Logistic Regression, Naive Bayes, Random Forest) and a fine-tuned **ALBERT transformer** — to classify reviews as Positive, Neutral, or Negative with up to **100% accuracy on manual test reviews**.
 
 </div>
 
@@ -26,7 +24,7 @@ An end-to-end NLP project that scrapes **16,000+ customer reviews** of Apple Air
 - [Project Structure](#-project-structure)
 - [Dataset](#-dataset)
 - [Methodology](#-methodology)
-  - [Data Collection & Cleaning](#-1-data-collection--cleaning)
+  - [Data Collection & Extraction](#-1-data-collection--extraction)
   - [Exploratory Data Analysis](#-2-exploratory-data-analysis)
   - [Text Preprocessing Pipeline](#%EF%B8%8F-3-text-preprocessing-pipeline)
   - [Method 1 — ML-Based Sentiment Analysis](#-4-method-1--ml-based-sentiment-analysis)
@@ -57,7 +55,7 @@ This project applies sentiment analysis to real-world **product reviews**, enabl
 
 ### Objective
 
-Scrape, clean, and analyze Apple AirPods (2nd Generation) reviews from Walmart, then build and compare multiple sentiment classification models to identify the most accurate approach.
+Collect, clean, and analyze Apple AirPods (2nd Generation) reviews from Walmart, then build and compare multiple sentiment classification models to identify the most accurate approach.
 
 <div align="center">
 
@@ -65,7 +63,8 @@ Scrape, clean, and analyze Apple AirPods (2nd Generation) reviews from Walmart, 
 
 | Component | Description |
 |---|---|
-| **Data Source** | 16,849 reviews scraped from Walmart |
+| **Data Source** | Walmart.com (16,849 reviews collected) |
+| **Collection Method** | HTML page download + JSON extraction (rate-limit compliant) |
 | **After Cleaning** | 11,569 unique reviews |
 | **Sentiment Labeling** | Llama 3.2-1B-Instruct (for ALBERT training data) + VADER (for ML methods) |
 | **ML Models Evaluated** | Logistic Regression, Multinomial Naive Bayes, Random Forest |
@@ -101,10 +100,10 @@ Try the live sentiment analysis app here:
 ```
 Project-Sentiment-Analysis/
 ├── Notebooks/
-│   ├── Web_Scraping_Walmart_Reviews.ipynb          # Selenium-based review scraper
+│   ├── Web_Scraping_Walmart_Reviews.ipynb          # HTML download + JSON extraction
 │   └── Sentiment_Analysis_Complete.ipynb            # Full analysis & modeling notebook
 ├── Data/
-│   ├── Walmart_AirPods_All_Reviews.csv              # Raw scraped reviews
+│   ├── Walmart_AirPods_All_Reviews.csv              # Extracted reviews dataset
 │   └── Walmart_AirPods_Sentiment_Llama_3.2_1B_Instruct.csv  # Llama-labeled reviews
 ├── Model/
 │   └── AirPods_fine_tuned_ALBERT_base_v2_model_balanced/     # Saved fine-tuned ALBERT model
@@ -126,7 +125,8 @@ Project-Sentiment-Analysis/
 
 | Metric | Value |
 |---|---|
-| **Raw Reviews Scraped** | 16,849 |
+| **Total HTML Pages Downloaded** | 1,686 pages |
+| **Reviews Extracted** | 16,849 |
 | **After Removing Nulls** | 16,833 |
 | **After Removing Duplicates** | 11,569 |
 | **Date Range** | March 2019 — January 2025 |
@@ -175,11 +175,46 @@ Project-Sentiment-Analysis/
 
 ## 🔬 Methodology
 
-### 🧹 1. Data Collection & Cleaning
+### 🌐 1. Data Collection & Extraction
 
-- **Web Scraping:** Used Selenium to scrape 16,849 reviews from Walmart's product page.
-- **Null Handling:** Dropped 16 rows with missing review text.
-- **Deduplication:** Removed 5,264 duplicate reviews, resulting in **11,569 unique reviews**.
+Since Walmart prohibits direct web scraping, we employed a **two-step data collection strategy** that respects rate limits while gathering comprehensive review data:
+
+#### **Step 1: HTML Page Download**
+
+- **Method:** Automated download of review pages as static HTML files using the `requests` library
+- **Anti-Bot Measures Implemented:**
+  - Rotating user agents (4 different browser signatures)
+  - Random delays between requests (2-20 seconds)
+  - Proxy rotation (4 proxy servers)
+  - CAPTCHA detection and automatic retry logic
+  - Maximum 5 retry attempts per page with exponential backoff
+
+<div align="center">
+
+| Rating Filter | Pages Downloaded |
+|:---:|:---:|
+| 1-3 Stars | 339 pages |
+| 4 Stars | 347 pages |
+| 5 Stars (Batch 1) | 502 pages |
+| 5 Stars (Batch 2) | 498 pages |
+| **Total** | **1,686 pages** |
+
+</div>
+
+> **Note:** 5-star reviews were split into two batches (502 + 498 pages) to avoid triggering rate-limiting on the 1,000-page dataset.
+
+<br>
+
+#### **Step 2: JSON Data Extraction**
+
+- **Method:** Parsed downloaded HTML files using BeautifulSoup to extract embedded JSON data
+- **Target:** Located `<script id="__NEXT_DATA__" type="application/json">` tags containing structured review data
+- **Extracted Fields:**
+  - Review text and title
+  - Star rating
+  - Reviewer username
+  - Submission date
+- **Result:** 16,849 raw reviews consolidated into a single CSV file
 
 <br>
 
