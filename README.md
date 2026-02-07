@@ -480,7 +480,7 @@ The app will open in the default browser at `http://localhost:8501`
 ## 🙏 Thank You
 
 <div align="center">
-
-If this project was helpful, please consider giving it a ⭐
-
+  <img src="https://github.com/MarpakaPradeepSai/Employee-Churn-Prediction/blob/main/Data/Images%20&%20GIFs/thank-you-33.gif?raw=true" alt="Thank You" width="400">
+  
+  If this project was helpful, please consider giving it a ⭐
 </div>
