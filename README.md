@@ -88,9 +88,9 @@ Try the live sentiment analysis app here:
 
 [![Open Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://project-sentiment-analysis.streamlit.app/)
 
-> Enter any Apple AirPods review and get an instant sentiment prediction powered by fine-tuned ALBERT!
-
 </div>
+
+> Enter any Apple AirPods review and get an instant sentiment prediction powered by fine-tuned ALBERT!
 
 <br>
 
