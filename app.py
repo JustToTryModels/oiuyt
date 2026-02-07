@@ -1,5 +1,5 @@
 import streamlit as st
-from transformers import AlbertTokenizer, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 import time  # For adding a loading spinner
 
@@ -17,24 +17,25 @@ MODEL_NAME = "IamPradeep/Apple-Airpods-Sentiment-Analysis-ALBERT-base-v2"
 # --- Cache the model loading to avoid reloading on every interaction ---
 @st.cache_resource
 def load_model():
-    tokenizer = AlbertTokenizer.from_pretrained(MODEL_NAME)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
     model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
     return tokenizer, model
 
 # --- Load tokenizer and model from Hugging Face Hub ---
-with st.spinner('Loading model from Hugging Face Hub...'):
-    try:
+try:
+    with st.spinner('Loading model from Hugging Face Hub...'):
         tokenizer, model = load_model()
-    except Exception as e:
-        st.error(f"Error loading model: {e}")
-        st.stop()
+except Exception as e:
+    st.error(f"Error loading model: {e}")
+    st.stop()
 
 # --- Function to predict sentiment ---
 def predict_sentiment(text):
     inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
-    outputs = model(**inputs)
+    with torch.no_grad():
+        outputs = model(**inputs)
     probs = torch.nn.functional.softmax(outputs.logits, dim=1)
-    return probs.detach().numpy()
+    return probs.numpy()
 
 # --- Function to map probabilities to sentiment labels and emojis ---
 def get_sentiment_label(probs):
