@@ -24,25 +24,25 @@ LABEL_MAP = {
 }
 
 # -----------------------------------------------------------------------------
-# 2. LOAD MODEL & TOKENIZER (Cached for performance)
+# 2. LOAD MODEL & TOKENIZER
 # -----------------------------------------------------------------------------
 @st.cache_resource
 def load_model():
     try:
+        # Load tokenizer and model directly from Hugging Face Hub
         tokenizer = AlbertTokenizerFast.from_pretrained(MODEL_REPO)
         model = AutoModelForSequenceClassification.from_pretrained(MODEL_REPO)
         return tokenizer, model
     except Exception as e:
-        st.error(f"Error loading model from Hugging Face: {e}")
         return None, None
 
+# Load the model
 tokenizer, model = load_model()
 
 # -----------------------------------------------------------------------------
 # 3. PREDICTION FUNCTION
 # -----------------------------------------------------------------------------
 def predict_sentiment(text):
-    # Preprocess text
     inputs = tokenizer(
         text, 
         return_tensors="pt", 
@@ -51,13 +51,12 @@ def predict_sentiment(text):
         max_length=512
     )
     
-    # Get predictions
     with torch.no_grad():
         outputs = model(**inputs)
     
-    # Apply softmax to get probabilities
+    # Get probabilities
     probs = torch.nn.functional.softmax(outputs.logits, dim=-1)
-    probs_np = probs.detach().numpy()[0]
+    probs_np = probs.detach().numpy()[0] # Returns array like [0.1, 0.8, 0.1]
     
     # Get the predicted class index
     pred_idx = np.argmax(probs_np)
@@ -69,63 +68,57 @@ def predict_sentiment(text):
 # -----------------------------------------------------------------------------
 st.title("🎧 AirPods Sentiment Analysis")
 st.markdown("""
-This app analyzes reviews for Walmart AirPods using a fine-tuned **ALBERT** model.
-Enter a review below to see if it is **Positive**, **Neutral**, or **Negative**.
+This app analyzes reviews using a fine-tuned **ALBERT** model.
 """)
 
-# Input Text Area
-user_input = st.text_area("Enter Review Text:", height=150, placeholder="e.g., The sound quality is amazing, but the battery life could be better.")
+# Input Area
+user_input = st.text_area("Enter Review Text:", height=150, placeholder="Type your review here...")
 
 if st.button("Analyze Sentiment"):
     if not user_input.strip():
-        st.warning("Please enter some text to analyze.")
+        st.warning("Please enter some text.")
     elif model is None:
-        st.error("Model failed to load. Please check your Hugging Face repo ID.")
+        st.error(f"Could not load model from {MODEL_REPO}. Check the repo ID.")
     else:
         with st.spinner("Analyzing..."):
             try:
-                # Run prediction
+                # Get Predictions
                 pred_idx, probabilities = predict_sentiment(user_input)
                 sentiment_label = LABEL_MAP[pred_idx]
                 confidence = probabilities[pred_idx] * 100
 
-                # Display Result
+                # Display Text Result
                 st.divider()
-                st.subheader("Results")
-
-                # Dynamic Color Coding
+                
+                # Determine color for text
                 if sentiment_label == "Positive":
-                    color = "green"
-                    emoji = "😃"
+                    st.success(f"**Sentiment: Positive** (Confidence: {confidence:.2f}%)")
                 elif sentiment_label == "Negative":
-                    color = "red"
-                    emoji = "😡"
+                    st.error(f"**Sentiment: Negative** (Confidence: {confidence:.2f}%)")
                 else:
-                    color = "orange"
-                    emoji = "😐"
+                    st.warning(f"**Sentiment: Neutral** (Confidence: {confidence:.2f}%)")
 
-                st.markdown(f"### Sentiment: :{color}[{sentiment_label} {emoji}]")
-                st.markdown(f"**Confidence Score:** {confidence:.2f}%")
+                # ---------------------------------------------------------
+                # VISUALIZATION FIX
+                # ---------------------------------------------------------
+                st.markdown("#### Confidence Levels")
 
-                # Visualization: Bar Chart of Probabilities
-                st.markdown("#### Probability Distribution")
-                
-                chart_data = pd.DataFrame({
-                    "Sentiment": ["Negative", "Neutral", "Positive"],
-                    "Probability": probabilities
-                })
-                
-                # Create a simple bar chart
+                # Reshape data into a DataFrame with 1 row and 3 columns
+                # Columns: Negative, Neutral, Positive
+                chart_data = pd.DataFrame(
+                    [probabilities], 
+                    columns=["Negative", "Neutral", "Positive"]
+                )
+
+                # Now we have 3 columns, so we can provide a list of 3 colors
+                # Red for Negative, Orange for Neutral, Green for Positive
                 st.bar_chart(
                     chart_data, 
-                    x="Sentiment", 
-                    y="Probability", 
-                    color=["#FF4B4B", "#FFA500", "#4CAF50"] # Red, Orange, Green hex codes roughly
+                    color=["#FF4B4B", "#FFA500", "#4CAF50"]
                 )
 
             except Exception as e:
-                st.error(f"An error occurred during prediction: {e}")
+                st.error(f"An error occurred: {e}")
 
-# Footer
 st.markdown("---")
-st.caption("Model trained on Walmart AirPods Reviews | Powered by Hugging Face & Streamlit")
+st.caption("Model: ALBERT-base-v2 | Finetuned on Walmart AirPods Reviews")
