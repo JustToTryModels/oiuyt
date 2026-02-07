@@ -1,3 +1,5 @@
+
+
 <div align="center">
 
 # 🎧 Sentiment Analysis of Apple AirPods Reviews
@@ -26,10 +28,10 @@ An end-to-end NLP project that scrapes **16,000+ customer reviews** of Apple Air
 - [Methodology](#-methodology)
   - [Data Collection & Cleaning](#-1-data-collection--cleaning)
   - [Exploratory Data Analysis](#-2-exploratory-data-analysis)
-  - [Text Preprocessing Pipeline](#-3-text-preprocessing-pipeline)
+  - [Text Preprocessing Pipeline](#%EF%B8%8F-3-text-preprocessing-pipeline)
   - [Method 1 — ML-Based Sentiment Analysis](#-4-method-1--ml-based-sentiment-analysis)
   - [Method 2 — Fine-Tuned ALBERT Transformer](#-5-method-2--fine-tuned-albert-transformer)
-- [Model Comparison & Results](#-model-comparison--results)
+- [Model Comparison & Results](#%EF%B8%8F-model-comparison--results)
 - [Key Findings](#-key-findings)
 - [Installation & Usage](#%EF%B8%8F-installation--usage)
 
@@ -97,7 +99,7 @@ Try the live sentiment analysis app here:
 ## 📁 Project Structure
 
 ```
-sentiment-analysis/
+Project-Sentiment-Analysis/
 ├── Notebooks/
 │   ├── Web_Scraping_Walmart_Reviews.ipynb          # Selenium-based review scraper
 │   └── Sentiment_Analysis_Complete.ipynb            # Full analysis & modeling notebook
@@ -290,11 +292,11 @@ For the deep learning approach, reviews were labeled using **Meta's Llama 3.2-1B
 
 <div align="center">
 
-| Class | Count | Percentage |
-|---|:---:|:---:|
-| Positive | 6,100+ | ~53% |
-| Negative | 2,600+ | ~22% |
-| Neutral | 1,000+ | ~9% |
+| Class | Weight | Interpretation |
+|---|:---:|---|
+| Negative (0) | 1.4711 | Upweighted |
+| Neutral (1) | **3.0424** | Heavily upweighted (minority class) |
+| Positive (2) | 0.5021 | Downweighted (majority class) |
 
 **Imbalance Ratio: 6.06x** (max/min class)
 
@@ -318,13 +320,6 @@ For the deep learning approach, reviews were labeled using **Meta's Llama 3.2-1B
 | **Best Model Selection** | Macro F1-Score |
 
 </div>
-
-**Class Weights Applied:**
-| Class | Weight | Interpretation |
-|---|:---:|---|
-| Negative (0) | 1.4711 | Upweighted |
-| Neutral (1) | **3.0424** | Heavily upweighted (minority class) |
-| Positive (2) | 0.5021 | Downweighted (majority class) |
 
 <br>
 
@@ -395,13 +390,12 @@ To truly test generalization, all models were evaluated on **15 manually written
 | **Contextual Understanding** | ❌ Bag-of-words; no word order | ✅ Full context via self-attention |
 | **Neutral Detection** | ❌ 40% accuracy on neutral reviews | ✅ 100% on manual, 64% on val set |
 | **Manual Review Accuracy** | 66.67% | **100.00%** |
-| **Confidence Scores** | Not available | ✅ 99.99%–100.00% per prediction |
 | **Preprocessing Required** | Extensive (7-step pipeline) | ✅ Minimal (tokenizer handles it) |
 | **Handles Sarcasm/Nuance** | ❌ Struggles with mixed sentiment | ✅ Better nuance understanding |
 
 </div>
 
-> The fine-tuned ALBERT model correctly classified all 15 manual test reviews with near-perfect confidence, whereas the best ML model struggled with **neutral** and **mixed-sentiment** reviews, misclassifying 5 out of 15.
+> The fine-tuned ALBERT model correctly classified all 15 manual test reviews, whereas the best ML model struggled with **neutral** and **mixed-sentiment** reviews, misclassifying 5 out of 15.
 
 <br>
 
@@ -457,7 +451,7 @@ To truly test generalization, all models were evaluated on **15 manually written
 1. **Clone the repository**
    ```bash
    git clone https://github.com/MarpakaPradeepSai/Project-Sentiment-Analysis.git
-   cd Sentiment-Analysis-AirPods
+   cd Project-Sentiment-Analysis
    ```
 
 2. **Create a virtual environment (optional but recommended)**
