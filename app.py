@@ -1,7 +1,7 @@
 import streamlit as st
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
-import time  # For adding a loading spinner
+import time
 
 # --- Set page config MUST be the first Streamlit command ---
 st.set_page_config(
@@ -17,46 +17,81 @@ MODEL_NAME = "IamPradeep/Apple-Airpods-Sentiment-Analysis-ALBERT-base-v2"
 # --- Cache the model loading to avoid reloading on every interaction ---
 @st.cache_resource
 def load_model():
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, use_fast=False)
-    model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
-    return tokenizer, model
+    """Load the fine-tuned ALBERT model and tokenizer from Hugging Face Hub"""
+    try:
+        # Load tokenizer (matches AlbertTokenizerFast used in training)
+        tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, use_fast=False)
+        
+        # Load model (3-class classification: Negative, Neutral, Positive)
+        model = AutoModelForSequenceClassification.from_pretrained(
+            MODEL_NAME,
+            num_labels=3
+        )
+        
+        # Set model to evaluation mode
+        model.eval()
+        
+        return tokenizer, model
+    except Exception as e:
+        st.error(f"Error loading model: {e}")
+        raise e
 
 # --- Load tokenizer and model from Hugging Face Hub ---
 try:
-    with st.spinner('Loading model from Hugging Face Hub...'):
+    with st.spinner('🔄 Loading model from Hugging Face Hub...'):
         tokenizer, model = load_model()
 except Exception as e:
-    st.error(f"Error loading model: {e}")
+    st.error(f"❌ Failed to load model: {e}")
     st.stop()
 
 # --- Function to predict sentiment ---
 def predict_sentiment(text):
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
+    """
+    Predict sentiment for given text
+    Returns: probabilities array and predicted label with emoji
+    """
+    # Tokenize input (same parameters as training)
+    inputs = tokenizer(
+        text,
+        return_tensors="pt",
+        truncation=True,
+        padding=True,
+        max_length=512
+    )
+    
+    # Get predictions
     with torch.no_grad():
         outputs = model(**inputs)
-    probs = torch.nn.functional.softmax(outputs.logits, dim=1)
+        logits = outputs.logits
+        probs = torch.nn.functional.softmax(logits, dim=1)
+    
     return probs.numpy()
 
 # --- Function to map probabilities to sentiment labels and emojis ---
 def get_sentiment_label(probs):
+    """
+    Map prediction to sentiment label
+    Label mapping: 0=Negative, 1=Neutral, 2=Positive (same as training)
+    """
     sentiment_mapping = ["Negative 😡", "Neutral 😐", "Positive 😊"]
     max_index = probs.argmax()
     return sentiment_mapping[max_index]
 
 # --- Function to get background color based on sentiment ---
 def get_background_color(label):
+    """Return background color based on sentiment"""
     if "Positive" in label:
-        return "#C3E6CB"
+        return "#C3E6CB"  # Soft green
     elif "Neutral" in label:
-        return "#FFE8A1"
+        return "#FFE8A1"  # Soft yellow
     else:
-        return "#F5C6CB"
+        return "#F5C6CB"  # Soft red
 
 # --- Custom CSS for a more attractive look ---
 st.markdown(
     """
     <style>
-    /* Import Google Fonts - Keeping Nunito and Open Sans for general text */
+    /* Import Google Fonts */
     @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700&family=Open+Sans:wght@400;600&display=swap');
 
     .main {
@@ -133,25 +168,57 @@ for i, url in enumerate(image_urls):
         st.image(url, width=100)
 
 # --- User Input Text Area ---
-user_input = st.text_area("Enter your AirPods review here")
+user_input = st.text_area("Enter your AirPods review here", height=150)
 
 # --- Analyze Sentiment Button ---
 if st.button("🔍 Analyze Sentiment"):
-    if user_input:
-        with st.spinner('Analyzing sentiment...'):
+    if user_input.strip():
+        with st.spinner('🔄 Analyzing sentiment...'):
+            # Simulate processing time for better UX
             time.sleep(0.5)
+            
+            # Get predictions
             sentiment_probs = predict_sentiment(user_input)
             sentiment_label = get_sentiment_label(sentiment_probs[0])
             background_color = get_background_color(sentiment_label)
+            
+            # Get confidence score
+            confidence = sentiment_probs[0].max() * 100
 
         st.divider()
+        
+        # Display result
         st.markdown(
             f"""
             <div style="background-color:{background_color}; padding: 10px; border-radius: 25px; text-align: center;" class="prediction-box">
                 <h3><span style="font-weight: bold;">Sentiment</span>: {sentiment_label}</h3>
+                <p style="font-size: 16px; margin-top: 5px;">Confidence: {confidence:.2f}%</p>
             </div>
             """,
             unsafe_allow_html=True
         )
+        
+        # Optional: Show probability distribution
+        with st.expander("📊 View Detailed Probabilities"):
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                st.metric("Negative 😡", f"{sentiment_probs[0][0]*100:.2f}%")
+            with col2:
+                st.metric("Neutral 😐", f"{sentiment_probs[0][1]*100:.2f}%")
+            with col3:
+                st.metric("Positive 😊", f"{sentiment_probs[0][2]*100:.2f}%")
     else:
         st.error("⚠️ Please enter a review to analyze.")
+
+# --- Footer ---
+st.markdown("---")
+st.markdown(
+    """
+    <div style="text-align: center; color: #666; font-size: 14px;">
+        <p>Powered by <b>ALBERT-base-v2</b> fine-tuned on Apple AirPods (2nd Gen) reviews</p>
+        <p>Model: <a href="https://huggingface.co/IamPradeep/Apple-Airpods-Sentiment-Analysis-ALBERT-base-v2" target="_blank">View on 🤗 Hugging Face</a></p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
