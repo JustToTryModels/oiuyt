@@ -1,124 +1,170 @@
 import streamlit as st
-import torch
-import pandas as pd
-import numpy as np
 from transformers import AlbertTokenizerFast, AutoModelForSequenceClassification
+import torch
+import numpy as np
+import time
 
-# -----------------------------------------------------------------------------
-# 1. APP CONFIGURATION
-# -----------------------------------------------------------------------------
+# --- Set page config MUST be the first Streamlit command ---
 st.set_page_config(
-    page_title="AirPods Sentiment Analyzer",
+    page_title="AirPods Review Sentiment Analyzer",
     page_icon="🎧",
-    layout="centered"
+    layout="centered",
+    initial_sidebar_state="expanded",
 )
 
-# Define the Hugging Face Model Repo
+# -----------------------------------------------------------------------------
+# MODEL LOADING (Updated to load from your Hugging Face Repo)
+# -----------------------------------------------------------------------------
 MODEL_REPO = "IamPradeep/Apple-Airpods-Sentiment-Analysis-ALBERT-base-v2"
 
-# Map labels (Must match your training configuration: 0=Neg, 1=Neu, 2=Pos)
-LABEL_MAP = {
-    0: "Negative",
-    1: "Neutral",
-    2: "Positive"
-}
-
-# -----------------------------------------------------------------------------
-# 2. LOAD MODEL & TOKENIZER
-# -----------------------------------------------------------------------------
 @st.cache_resource
 def load_model():
     try:
-        # Load tokenizer and model directly from Hugging Face Hub
         tokenizer = AlbertTokenizerFast.from_pretrained(MODEL_REPO)
         model = AutoModelForSequenceClassification.from_pretrained(MODEL_REPO)
         return tokenizer, model
     except Exception as e:
+        st.error(f"Error loading model from Hugging Face: {e}")
         return None, None
 
 # Load the model
 tokenizer, model = load_model()
 
 # -----------------------------------------------------------------------------
-# 3. PREDICTION FUNCTION
+# HELPER FUNCTIONS
 # -----------------------------------------------------------------------------
+
 def predict_sentiment(text):
-    inputs = tokenizer(
-        text, 
-        return_tensors="pt", 
-        truncation=True, 
-        padding=True, 
-        max_length=512
-    )
-    
+    # Prepare input
+    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
+    # Inference
     with torch.no_grad():
         outputs = model(**inputs)
+    # Probabilities
+    probs = torch.nn.functional.softmax(outputs.logits, dim=1)
+    return probs.detach().numpy()[0]
+
+def get_sentiment_info(probs):
+    # Map indices to labels (0=Negative, 1=Neutral, 2=Positive)
+    # Using the emojis and labels from the UI design
+    labels = ["Negative 😡", "Neutral 😐", "Positive 😊"]
+    colors = ["#F5C6CB", "#FFE8A1", "#C3E6CB"] # Red-ish, Yellow-ish, Green-ish
     
-    # Get probabilities
-    probs = torch.nn.functional.softmax(outputs.logits, dim=-1)
-    probs_np = probs.detach().numpy()[0] # Returns array like [0.1, 0.8, 0.1]
-    
-    # Get the predicted class index
-    pred_idx = np.argmax(probs_np)
-    
-    return pred_idx, probs_np
+    max_index = np.argmax(probs)
+    return labels[max_index], colors[max_index]
 
 # -----------------------------------------------------------------------------
-# 4. USER INTERFACE
+# UI & CSS (Strictly following the provided layout)
 # -----------------------------------------------------------------------------
-st.title("🎧 AirPods Sentiment Analysis")
-st.markdown("""
-This app analyzes reviews using a fine-tuned **ALBERT** model.
-""")
 
-# Input Area
-user_input = st.text_area("Enter Review Text:", height=150, placeholder="Type your review here...")
+st.markdown(
+    """
+    <style>
+    /* Import Google Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700&family=Open+Sans:wght@400;600&display=swap');
 
-if st.button("Analyze Sentiment"):
+    .main {
+        background-color: #F0F2F6;
+        font-family: 'Open Sans', sans-serif;
+        color: #333;
+    }
+    h1 {
+        font-family: 'Nunito', sans-serif;
+        color: #6a0572;
+        text-align: center;
+        font-size: 3em;
+        margin-bottom: 15px;
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    }
+    .stButton>button {
+        background: linear-gradient(90deg, #ff8a00, #e52e71);
+        color: white !important;
+        border: none;
+        border-radius: 25px;
+        padding: 10px 20px;
+        font-size: 1.2em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        width: 100%;
+    }
+    .stButton>button:hover {
+        transform: scale(1.02);
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+        color: white !important;
+    }
+    .prediction-box {
+        border-radius: 25px;
+        padding: 20px;
+        text-align: center;
+        font-size: 24px;
+        margin-top: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .stTextArea textarea {
+        border-radius: 15px;
+        border: 1px solid #ced4da;
+        padding: 15px;
+        background-color: #FFFFFF;
+        box-shadow: 3px 3px 5px #9E9E9E;
+        font-size: 16px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# --- App Title ---
+st.markdown(
+    """
+    <h1 style="font-size: 45px; text-align: center;">Apple AirPods Sentiment Analysis</h1>
+    """,
+    unsafe_allow_html=True
+)
+
+# --- AirPods Image Row ---
+image_urls = [
+    "https://i5.walmartimages.com/seo/Apple-AirPods-with-Charging-Case-2nd-Generation_8540ab4f-8062-48d0-9133-323a99ed921d.fb43fa09a0faef3f9495feece1397f8d.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
+    "https://i5.walmartimages.com/asr/b6247579-386a-4bda-99aa-01e44801bc33.49db04f5e5b8d7f329c6580455e2e010.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
+    "https://i5.walmartimages.com/asr/0f803868-d25f-4891-b0c8-e27a514ede02.f22c42c1ea17cd4d2b30fdfc89a8797c.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
+    "https://i5.walmartimages.com/asr/df1b081f-4fa9-4ea5-87f8-413b9cad7a6e.f580d742da0a58bc25dadd30512adf72.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
+    "https://i5.walmartimages.com/asr/2830c8d7-292d-4b99-b92f-239b15ff1062.ce77d20b2f20a569bfd656d05ca89f7c.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF"
+]
+
+cols = st.columns(5)
+for i, url in enumerate(image_urls):
+    with cols[i]:
+        st.image(url, use_container_width=True)
+
+st.write("") # Spacer
+
+# --- User Input Text Area ---
+user_input = st.text_area("Enter your AirPods review here:", height=150)
+
+st.write("") # Spacer
+
+# --- Analyze Sentiment Button ---
+if st.button("🔍 Analyze Sentiment"): 
     if not user_input.strip():
-        st.warning("Please enter some text.")
+        st.error("⚠️ Please enter a review to analyze.")
     elif model is None:
-        st.error(f"Could not load model from {MODEL_REPO}. Check the repo ID.")
+        st.error("Model failed to load. Please check the repo ID.")
     else:
-        with st.spinner("Analyzing..."):
-            try:
-                # Get Predictions
-                pred_idx, probabilities = predict_sentiment(user_input)
-                sentiment_label = LABEL_MAP[pred_idx]
-                confidence = probabilities[pred_idx] * 100
+        with st.spinner('Analyzing sentiment...'): 
+            time.sleep(0.5) # Slight delay for visual effect
+            
+            # Predict
+            probs = predict_sentiment(user_input)
+            label, bg_color = get_sentiment_info(probs)
+            confidence = np.max(probs) * 100
 
-                # Display Text Result
-                st.divider()
-                
-                # Determine color for text
-                if sentiment_label == "Positive":
-                    st.success(f"**Sentiment: Positive** (Confidence: {confidence:.2f}%)")
-                elif sentiment_label == "Negative":
-                    st.error(f"**Sentiment: Negative** (Confidence: {confidence:.2f}%)")
-                else:
-                    st.warning(f"**Sentiment: Neutral** (Confidence: {confidence:.2f}%)")
-
-                # ---------------------------------------------------------
-                # VISUALIZATION FIX
-                # ---------------------------------------------------------
-                st.markdown("#### Confidence Levels")
-
-                # Reshape data into a DataFrame with 1 row and 3 columns
-                # Columns: Negative, Neutral, Positive
-                chart_data = pd.DataFrame(
-                    [probabilities], 
-                    columns=["Negative", "Neutral", "Positive"]
-                )
-
-                # Now we have 3 columns, so we can provide a list of 3 colors
-                # Red for Negative, Orange for Neutral, Green for Positive
-                st.bar_chart(
-                    chart_data, 
-                    color=["#FF4B4B", "#FFA500", "#4CAF50"]
-                )
-
-            except Exception as e:
-                st.error(f"An error occurred: {e}")
-
-st.markdown("---")
-st.caption("Model: ALBERT-base-v2 | Finetuned on Walmart AirPods Reviews")
+        # --- Display Result ---
+        st.markdown(
+            f"""
+            <div style="background-color:{bg_color};" class="prediction-box">
+                <h3 style="margin:0; color: #333;">Sentiment: <b>{label}</b></h3>
+                <p style="margin:5px 0 0 0; font-size: 16px;">Confidence: {confidence:.2f}%</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
