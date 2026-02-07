@@ -91,6 +91,10 @@ Try the live sentiment analysis app here:
 
 > Enter any Apple AirPods review and get an instant sentiment prediction powered by fine-tuned ALBERT!
 
+<div align="center">
+  <img src="https://github.com/MarpakaPradeepSai/Project-Sentiment-Analysis/blob/main/Data/Images%20&%20GIFs/Screenshot%202026-02-07%20171501.png?raw=true" alt="Streamlit App Demo Screenshot">
+</div>
+
 <br>
 
 ---
