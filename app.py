@@ -17,7 +17,7 @@ MODEL_NAME = "IamPradeep/Apple-Airpods-Sentiment-Analysis-ALBERT-base-v2"
 # --- Cache the model loading to avoid reloading on every interaction ---
 @st.cache_resource
 def load_model():
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, use_fast=False)
     model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
     return tokenizer, model
 
