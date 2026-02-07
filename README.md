@@ -456,7 +456,7 @@ To truly test generalization, all models were evaluated on **15 manually written
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/YourUsername/Sentiment-Analysis-AirPods.git
+   git clone https://github.com/MarpakaPradeepSai/Project-Sentiment-Analysis.git
    cd Sentiment-Analysis-AirPods
    ```
 
