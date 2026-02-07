@@ -13,7 +13,8 @@ st.set_page_config(
 )
 
 # -----------------------------------------------------------------------------
-# MODEL LOADING (Updated to load from your Hugging Face Repo)
+# 1. MODEL LOADING
+#    Loads directly from your Hugging Face Repo (No manual download needed)
 # -----------------------------------------------------------------------------
 MODEL_REPO = "IamPradeep/Apple-Airpods-Sentiment-Analysis-ALBERT-base-v2"
 
@@ -27,36 +28,35 @@ def load_model():
         st.error(f"Error loading model from Hugging Face: {e}")
         return None, None
 
-# Load the model
 tokenizer, model = load_model()
 
 # -----------------------------------------------------------------------------
-# HELPER FUNCTIONS
+# 2. HELPER FUNCTIONS
 # -----------------------------------------------------------------------------
 
 def predict_sentiment(text):
-    # Prepare input
+    # Tokenize
     inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
-    # Inference
+    # Predict
     with torch.no_grad():
         outputs = model(**inputs)
-    # Probabilities
+    # Get Probabilities
     probs = torch.nn.functional.softmax(outputs.logits, dim=1)
     return probs.detach().numpy()[0]
 
 def get_sentiment_info(probs):
-    # Map indices to labels (0=Negative, 1=Neutral, 2=Positive)
-    # Using the emojis and labels from the UI design
+    # Mapping based on training: 0=Negative, 1=Neutral, 2=Positive
     labels = ["Negative 😡", "Neutral 😐", "Positive 😊"]
-    colors = ["#F5C6CB", "#FFE8A1", "#C3E6CB"] # Red-ish, Yellow-ish, Green-ish
+    
+    # Original UI Colors
+    colors = ["#F5C6CB", "#FFE8A1", "#C3E6CB"] 
     
     max_index = np.argmax(probs)
     return labels[max_index], colors[max_index]
 
 # -----------------------------------------------------------------------------
-# UI & CSS (Strictly following the provided layout)
+# 3. UI & CSS (Exact Match to Request)
 # -----------------------------------------------------------------------------
-
 st.markdown(
     """
     <style>
@@ -64,49 +64,49 @@ st.markdown(
     @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700&family=Open+Sans:wght@400;600&display=swap');
 
     .main {
-        background-color: #F0F2F6;
-        font-family: 'Open Sans', sans-serif;
+        background-color: #F0F2F6; 
+        font-family: 'Open Sans', sans-serif; 
         color: #333;
     }
     h1 {
-        font-family: 'Nunito', sans-serif;
-        color: #6a0572;
+        font-family: 'Nunito', sans-serif; 
+        color: #6a0572; 
         text-align: center;
-        font-size: 3em;
+        font-size: 3em; 
         margin-bottom: 15px;
-        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); 
     }
     .stButton>button {
-        background: linear-gradient(90deg, #ff8a00, #e52e71);
+        background: linear-gradient(90deg, #ff8a00, #e52e71); 
         color: white !important;
         border: none;
-        border-radius: 25px;
+        border-radius: 25px; 
         padding: 10px 20px;
-        font-size: 1.2em;
-        font-weight: bold;
+        font-size: 1.2em; 
+        font-weight: bold; 
         cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        width: 100%;
+        transition: transform 0.2s ease, box-shadow 0.2s ease; 
+        width: 100%; /* Make button full width for better mobile view */
     }
     .stButton>button:hover {
-        transform: scale(1.02);
-        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+        transform: scale(1.02); 
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3); 
         color: white !important;
     }
     .prediction-box {
-        border-radius: 25px;
-        padding: 20px;
-        text-align: center;
-        font-size: 24px;
+        border-radius: 25px; 
+        padding: 20px; 
+        text-align: center; 
+        font-size: 24px; 
         margin-top: 20px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
     .stTextArea textarea {
-        border-radius: 15px;
-        border: 1px solid #ced4da;
-        padding: 15px;
-        background-color: #FFFFFF;
-        box-shadow: 3px 3px 5px #9E9E9E;
+        border-radius: 15px; 
+        border: 1px solid #ced4da; 
+        padding: 15px; 
+        background-color: #FFFFFF; 
+        box-shadow: 3px 3px 5px #9E9E9E; 
         font-size: 16px;
     }
     </style>
@@ -159,11 +159,14 @@ if st.button("🔍 Analyze Sentiment"):
             confidence = np.max(probs) * 100
 
         # --- Display Result ---
+        st.divider()
         st.markdown(
             f"""
             <div style="background-color:{bg_color};" class="prediction-box">
-                <h3 style="margin:0; color: #333;">Sentiment: <b>{label}</b></h3>
-                <p style="margin:5px 0 0 0; font-size: 16px;">Confidence: {confidence:.2f}%</p>
+                <h3 style="color: #333; margin:0;">
+                    <span style="font-weight: 900;">Sentiment:</span> 
+                    <span style="font-weight: 400;">{label}</span>
+                </h3>
             </div>
             """,
             unsafe_allow_html=True
