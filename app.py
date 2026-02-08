@@ -73,18 +73,12 @@ st.markdown(
         color: white !important;
         border: none;
         border-radius: 25px;
-        padding: 12px 30px;
+        padding: 10px 20px;
         font-size: 1.2em;
         font-weight: bold;
         cursor: pointer;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
-        
-        /* --- MODIFIED BUTTON STYLES BELOW --- */
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-        width: 50%; 
-        /* ------------------------------------ */
+        width: 100%;
     }
     .stButton>button:hover {
         transform: scale(1.05);
@@ -142,8 +136,14 @@ user_input = st.text_area("Enter your AirPods review here", height=150)
 
 st.write("")  # Spacer
 
-# --- Analyze Sentiment Button ---
-if st.button("🔍 Analyze Sentiment"):
+# --- Analyze Sentiment Button (Centered) ---
+# Create 3 columns, putting the button in the middle one to center it
+col1, col2, col3 = st.columns([1, 1, 1])
+
+with col2:
+    analyze_button = st.button("🔍 Analyze Sentiment")
+
+if analyze_button:
     if not user_input.strip():
         st.error("⚠️ Please enter a review to analyze.")
     elif model is None:
@@ -162,7 +162,7 @@ if st.button("🔍 Analyze Sentiment"):
         label_emoji = label.split()[1]       # Example: "😊"
 
         # ---
-        # Modified Display Format (structure changed only here as requested)
+        # Modified Display Format
         st.markdown(
             f"""
             <div style="background-color:{bg_color}; padding: 10px; border-radius: 25px; text-align: center;" class="prediction-box">
