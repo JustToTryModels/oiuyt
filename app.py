@@ -187,7 +187,7 @@ if analyze_button:
             label, bg_color = get_sentiment_info(probs)
             confidence = np.max(probs) * 100
 
-       st.markdown(
+           st.markdown(
     """
     <hr style="border: none; height: 2px; background-color: #000000; margin: 20px 0; border-radius: 1px;">
     """,
