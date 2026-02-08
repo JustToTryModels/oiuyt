@@ -136,8 +136,12 @@ user_input = st.text_area("Enter your AirPods review here", height=150)
 
 st.write("")  # Spacer
 
-# --- Analyze Sentiment Button ---
-if st.button("🔍 Analyze Sentiment"):
+# --- Analyze Sentiment Button (Centered) ---
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    analyze_clicked = st.button("🔍 Analyze Sentiment")
+
+if analyze_clicked:
     if not user_input.strip():
         st.error("⚠️ Please enter a review to analyze.")
     elif model is None:
