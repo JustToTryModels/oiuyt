@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # -----------------------------------------------------------------------------
-# MODEL LOADING
+# MODEL LOADING (UNCHANGED CORE LOGIC)
 # -----------------------------------------------------------------------------
 MODEL_REPO = "IamPradeep/Apple-Airpods-Sentiment-Analysis-ALBERT-base-v2"
 
@@ -27,10 +27,11 @@ def load_model():
         st.error(f"Error loading model from Hugging Face: {e}")
         return None, None
 
+# Load the model
 tokenizer, model = load_model()
 
 # -----------------------------------------------------------------------------
-# HELPER FUNCTIONS
+# HELPER FUNCTIONS (UNCHANGED CORE LOGIC)
 # -----------------------------------------------------------------------------
 
 def predict_sentiment(text):
@@ -47,656 +48,690 @@ def get_sentiment_info(probs):
     return labels[max_index], colors[max_index]
 
 # -----------------------------------------------------------------------------
-# ENHANCED UI & CSS
+# INITIALIZE SESSION STATE FOR HISTORY
 # -----------------------------------------------------------------------------
+if "history" not in st.session_state:
+    st.session_state.history = []
 
+# -----------------------------------------------------------------------------
+# GLOBAL CSS — MODERN, POLISHED THEME
+# -----------------------------------------------------------------------------
 st.markdown(
     """
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Open+Sans:wght@400;600&family=Inter:wght@400;500;600;700&display=swap');
+    /* ── Google Fonts ── */
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap');
 
-    /* ===== GLOBAL BACKGROUND & BODY ===== */
-    .main {
-        background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 50%, #f0e6f6 100%);
-        font-family: 'Inter', 'Open Sans', sans-serif;
-        color: #2d3748;
+    /* ── Root variables for easy theming ── */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --accent-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --button-gradient: linear-gradient(135deg, #ff6a00 0%, #ee0979 100%);
+        --card-bg: rgba(255, 255, 255, 0.95);
+        --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        --card-radius: 20px;
+        --text-primary: #1a1a2e;
+        --text-secondary: #555;
+        --bg-main: #f0f2f6;
     }
 
-    /* Hide default Streamlit branding */
+    /* ── Main background ── */
+    .main {
+        background: linear-gradient(160deg, #f0f2f6 0%, #e8eaf6 50%, #f3e5f5 100%);
+        font-family: 'Inter', 'Open Sans', sans-serif;
+        color: var(--text-primary);
+    }
+
+    /* ── Hide default Streamlit header/footer for cleaner look ── */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
-    /* ===== ANIMATED GRADIENT TITLE ===== */
+    /* ── Animated gradient hero banner ── */
+    .hero-banner {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        background-size: 200% 200%;
+        animation: gradientShift 6s ease infinite;
+        border-radius: 24px;
+        padding: 40px 30px 30px 30px;
+        text-align: center;
+        margin-bottom: 30px;
+        box-shadow: 0 12px 40px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    .hero-banner::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+        animation: shimmer 4s ease-in-out infinite;
+    }
     @keyframes gradientShift {
         0% { background-position: 0% 50%; }
         50% { background-position: 100% 50%; }
         100% { background-position: 0% 50%; }
     }
-
-    @keyframes fadeInDown {
-        from { opacity: 0; transform: translateY(-30px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(30px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
-    @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-    }
-
     @keyframes shimmer {
-        0% { background-position: -200% center; }
-        100% { background-position: 200% center; }
+        0%, 100% { transform: translateX(-30%) translateY(-30%); }
+        50% { transform: translateX(10%) translateY(10%); }
     }
-
-    @keyframes float {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-10px); }
-    }
-
-    @keyframes slideInLeft {
-        from { opacity: 0; transform: translateX(-50px); }
-        to { opacity: 1; transform: translateX(0); }
-    }
-
-    @keyframes slideInRight {
-        from { opacity: 0; transform: translateX(50px); }
-        to { opacity: 1; transform: translateX(0); }
-    }
-
-    @keyframes bounceIn {
-        0% { opacity: 0; transform: scale(0.3); }
-        50% { transform: scale(1.05); }
-        70% { transform: scale(0.9); }
-        100% { opacity: 1; transform: scale(1); }
-    }
-
-    @keyframes ripple {
-        0% { box-shadow: 0 0 0 0 rgba(106, 5, 114, 0.3); }
-        100% { box-shadow: 0 0 0 20px rgba(106, 5, 114, 0); }
-    }
-
-    @keyframes barGrow {
-        from { width: 0%; }
-        to { width: var(--bar-width); }
-    }
-
-    /* ===== HERO TITLE SECTION ===== */
-    .hero-title-container {
-        text-align: center;
-        padding: 20px 0 10px 0;
-        animation: fadeInDown 1s ease-out;
-    }
-    .hero-title {
+    .hero-banner h1 {
         font-family: 'Nunito', sans-serif;
+        color: #ffffff !important;
+        font-size: 2.6em;
         font-weight: 900;
-        font-size: 3.2em;
-        background: linear-gradient(135deg, #6a0572, #e52e71, #ff8a00, #6a0572);
-        background-size: 300% 300%;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        animation: gradientShift 4s ease infinite;
-        margin-bottom: 0;
-        letter-spacing: -1px;
-        line-height: 1.2;
+        margin: 0 0 8px 0;
+        text-shadow: 2px 4px 12px rgba(0, 0, 0, 0.25);
+        position: relative;
+        z-index: 1;
+        letter-spacing: -0.5px;
     }
     .hero-subtitle {
-        font-family: 'Inter', sans-serif;
-        color: #718096;
+        color: rgba(255, 255, 255, 0.9);
         font-size: 1.1em;
-        font-weight: 500;
-        margin-top: 8px;
-        animation: fadeIn 1.5s ease-out;
-    }
-    .hero-badge {
-        display: inline-block;
-        background: linear-gradient(135deg, #6a0572, #9b59b6);
-        color: white;
-        padding: 4px 16px;
-        border-radius: 20px;
-        font-size: 0.75em;
-        font-weight: 600;
-        margin-top: 10px;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        animation: fadeIn 2s ease-out;
-    }
-
-    /* ===== IMAGE CAROUSEL CARD ===== */
-    .image-showcase {
-        background: white;
-        border-radius: 24px;
-        padding: 24px 16px;
-        margin: 20px 0;
-        box-shadow: 0 10px 40px rgba(106, 5, 114, 0.08), 0 2px 10px rgba(0,0,0,0.04);
-        animation: fadeInUp 0.8s ease-out;
-        border: 1px solid rgba(106, 5, 114, 0.06);
-        transition: box-shadow 0.3s ease, transform 0.3s ease;
-    }
-    .image-showcase:hover {
-        box-shadow: 0 15px 50px rgba(106, 5, 114, 0.12), 0 5px 15px rgba(0,0,0,0.06);
-        transform: translateY(-2px);
-    }
-    .image-showcase-title {
-        text-align: center;
-        font-family: 'Nunito', sans-serif;
-        font-weight: 700;
-        color: #6a0572;
-        font-size: 1em;
-        margin-bottom: 16px;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-    }
-    .image-row {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 16px;
-        flex-wrap: wrap;
-    }
-    .product-img-wrapper {
-        background: linear-gradient(135deg, #f8f4ff, #fff);
-        border-radius: 18px;
-        padding: 10px;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        cursor: pointer;
-        border: 2px solid transparent;
+        font-weight: 400;
         position: relative;
-        overflow: hidden;
-    }
-    .product-img-wrapper::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: linear-gradient(135deg, rgba(106,5,114,0.05), rgba(229,46,113,0.05));
-        border-radius: 16px;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-    .product-img-wrapper:hover::before {
-        opacity: 1;
-    }
-    .product-img-wrapper:hover {
-        transform: translateY(-8px) scale(1.08);
-        border-color: rgba(106, 5, 114, 0.2);
-        box-shadow: 0 12px 30px rgba(106, 5, 114, 0.15);
-    }
-    .product-img-wrapper img {
-        border-radius: 12px;
-        width: 90px;
-        height: 90px;
-        object-fit: contain;
+        z-index: 1;
+        margin-top: 0;
     }
 
-    /* ===== INPUT SECTION CARD ===== */
-    .input-card {
-        background: white;
-        border-radius: 24px;
-        padding: 32px 28px;
-        margin: 20px 0;
-        box-shadow: 0 10px 40px rgba(106, 5, 114, 0.08), 0 2px 10px rgba(0,0,0,0.04);
-        animation: fadeInUp 1s ease-out;
-        border: 1px solid rgba(106, 5, 114, 0.06);
-        transition: box-shadow 0.3s ease;
+    /* ── Glass-morphism card style ── */
+    .glass-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        border-radius: var(--card-radius);
+        padding: 28px 28px 22px 28px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        margin-bottom: 24px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    .input-card:hover {
-        box-shadow: 0 15px 50px rgba(106, 5, 114, 0.12), 0 5px 15px rgba(0,0,0,0.06);
+    .glass-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
     }
-    .input-label {
+    .card-header {
         font-family: 'Nunito', sans-serif;
-        font-weight: 700;
-        color: #4a1a5e;
-        font-size: 1.15em;
-        margin-bottom: 6px;
+        font-size: 1.3em;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 16px;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
     }
-    .input-hint {
-        color: #a0aec0;
-        font-size: 0.88em;
-        margin-bottom: 14px;
-        font-style: italic;
+    .card-header-icon {
+        font-size: 1.4em;
     }
 
-    /* ===== TEXT AREA OVERRIDE ===== */
-    .stTextArea textarea {
-        border-radius: 16px !important;
-        border: 2px solid #e2d9f3 !important;
-        padding: 16px !important;
-        background: linear-gradient(135deg, #fdfcff, #f9f7ff) !important;
-        box-shadow: inset 0 2px 8px rgba(106, 5, 114, 0.04) !important;
-        font-size: 1em !important;
-        font-family: 'Inter', sans-serif !important;
-        color: #2d3748 !important;
-        transition: all 0.3s ease !important;
-        line-height: 1.6 !important;
-    }
-    .stTextArea textarea:focus {
-        border-color: #9b59b6 !important;
-        box-shadow: 0 0 0 3px rgba(106, 5, 114, 0.1), inset 0 2px 8px rgba(106, 5, 114, 0.04) !important;
-        background: #ffffff !important;
-    }
-    .stTextArea textarea::placeholder {
-        color: #b794d0 !important;
-        font-style: italic !important;
-    }
-
-    /* Hide default Streamlit label for text_area */
-    .stTextArea label {
-        display: none !important;
-    }
-
-    /* ===== ANALYZE BUTTON ===== */
+    /* ── Styled button ── */
     .stButton>button {
-        background: linear-gradient(135deg, #6a0572, #e52e71, #ff8a00) !important;
-        background-size: 200% 200% !important;
+        background: var(--button-gradient) !important;
         color: white !important;
         border: none !important;
         border-radius: 50px !important;
         padding: 14px 32px !important;
-        font-size: 1.2em !important;
+        font-size: 1.15em !important;
         font-weight: 700 !important;
         font-family: 'Nunito', sans-serif !important;
         cursor: pointer !important;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         width: 100% !important;
+        box-shadow: 0 6px 20px rgba(238, 9, 121, 0.3) !important;
         letter-spacing: 0.5px !important;
-        box-shadow: 0 8px 25px rgba(229, 46, 113, 0.3) !important;
-        text-transform: none !important;
-        animation: gradientShift 3s ease infinite !important;
     }
     .stButton>button:hover {
         transform: translateY(-3px) scale(1.02) !important;
-        box-shadow: 0 12px 35px rgba(229, 46, 113, 0.45) !important;
+        box-shadow: 0 10px 30px rgba(238, 9, 121, 0.4) !important;
         color: white !important;
     }
     .stButton>button:active {
         transform: translateY(0px) scale(0.98) !important;
     }
 
-    /* ===== RESULT CARD ===== */
-    .result-card {
-        background: white;
-        border-radius: 28px;
-        padding: 0;
-        margin: 24px 0;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
-        overflow: hidden;
-        animation: bounceIn 0.8s ease-out;
-        border: 1px solid rgba(0,0,0,0.04);
+    /* ── Text area styling ── */
+    .stTextArea textarea {
+        border-radius: 16px !important;
+        border: 2px solid #e0e0e0 !important;
+        padding: 16px !important;
+        background-color: #FAFBFC !important;
+        box-shadow: inset 0 2px 6px rgba(0,0,0,0.04) !important;
+        font-size: 15px !important;
+        font-family: 'Inter', sans-serif !important;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease !important;
+        line-height: 1.6 !important;
     }
-    .result-header {
-        padding: 28px 32px 20px 32px;
-        text-align: center;
+    .stTextArea textarea:focus {
+        border-color: #764ba2 !important;
+        box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.15), inset 0 2px 6px rgba(0,0,0,0.04) !important;
     }
-    .result-emoji {
-        font-size: 4em;
-        margin-bottom: 8px;
-        animation: float 3s ease-in-out infinite;
-        display: inline-block;
-    }
-    .result-sentiment {
-        font-family: 'Nunito', sans-serif;
-        font-weight: 900;
-        font-size: 2em;
-        margin: 8px 0 4px 0;
-        letter-spacing: -0.5px;
-    }
-    .result-confidence-label {
-        color: #718096;
-        font-size: 0.95em;
-        font-weight: 500;
-        margin-bottom: 4px;
-    }
-    .result-confidence-value {
-        font-family: 'Nunito', sans-serif;
-        font-weight: 800;
-        font-size: 2.2em;
-        margin: 4px 0;
+    .stTextArea textarea::placeholder {
+        color: #aaa !important;
+        font-style: italic !important;
     }
 
-    /* ===== PROBABILITY BARS ===== */
-    .prob-section {
-        background: #f9fafb;
-        border-top: 1px solid #f0f0f0;
-        padding: 24px 32px 28px 32px;
-    }
-    .prob-section-title {
-        font-family: 'Nunito', sans-serif;
-        font-weight: 700;
-        color: #4a5568;
-        font-size: 0.95em;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        margin-bottom: 18px;
+    /* ── Result card with animation ── */
+    .result-card {
+        border-radius: 24px;
+        padding: 30px 24px;
         text-align: center;
-    }
-    .prob-row {
-        display: flex;
-        align-items: center;
-        margin-bottom: 14px;
-        gap: 12px;
-    }
-    .prob-label {
-        font-weight: 600;
-        font-size: 0.92em;
-        min-width: 110px;
-        color: #4a5568;
-    }
-    .prob-bar-container {
-        flex: 1;
-        background: #edf2f7;
-        border-radius: 12px;
-        height: 28px;
-        overflow: hidden;
-        position: relative;
-    }
-    .prob-bar {
-        height: 100%;
-        border-radius: 12px;
-        transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        padding-right: 10px;
+        animation: fadeSlideUp 0.6s ease-out;
         position: relative;
         overflow: hidden;
     }
-    .prob-bar::after {
+    .result-card::after {
         content: '';
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-        background-size: 200% 100%;
-        animation: shimmer 2s ease-in-out infinite;
+        top: 0; left: 0; right: 0; bottom: 0;
+        border-radius: 24px;
+        border: 2px solid rgba(255,255,255,0.5);
+        pointer-events: none;
     }
-    .prob-bar-negative {
-        background: linear-gradient(135deg, #fc5c7d, #e74c3c);
+    @keyframes fadeSlideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
     }
-    .prob-bar-neutral {
-        background: linear-gradient(135deg, #f9d423, #f0a500);
-    }
-    .prob-bar-positive {
-        background: linear-gradient(135deg, #38ef7d, #11998e);
-    }
-    .prob-value {
-        font-weight: 700;
-        font-size: 0.82em;
-        color: white;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        position: relative;
-        z-index: 1;
-    }
-
-    /* ===== DIVIDER STYLE ===== */
-    hr {
-        border: none;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, #d6bcfa, transparent);
-        margin: 28px 0;
-    }
-
-    /* ===== FOOTER ===== */
-    .app-footer {
-        text-align: center;
-        padding: 20px 0 10px 0;
-        color: #a0aec0;
-        font-size: 0.85em;
-        animation: fadeIn 2s ease-out;
-    }
-    .app-footer a {
-        color: #9b59b6;
-        text-decoration: none;
-        font-weight: 600;
-    }
-
-    /* ===== SAMPLE REVIEWS ===== */
-    .sample-title {
+    .result-label {
         font-family: 'Nunito', sans-serif;
-        font-weight: 700;
-        color: #6a0572;
-        font-size: 1em;
-        margin-bottom: 10px;
-        text-align: center;
+        font-size: 1.8em;
+        font-weight: 900;
+        margin: 0;
+        color: var(--text-primary);
     }
-    .sample-chip {
+    .result-confidence {
+        font-size: 1em;
+        color: var(--text-secondary);
+        margin-top: 8px;
+        font-weight: 500;
+    }
+
+    /* ── Probability bars ── */
+    .prob-bar-container {
+        margin: 8px 0;
+        animation: fadeSlideUp 0.7s ease-out;
+    }
+    .prob-label-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.92em;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 5px;
+    }
+    .prob-bar-bg {
+        background: #eee;
+        border-radius: 10px;
+        height: 14px;
+        overflow: hidden;
+    }
+    .prob-bar-fill {
+        height: 100%;
+        border-radius: 10px;
+        transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ── Sidebar styling ── */
+    section[data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+    }
+    section[data-testid="stSidebar"] .stMarkdown p,
+    section[data-testid="stSidebar"] .stMarkdown li,
+    section[data-testid="stSidebar"] .stMarkdown span {
+        color: rgba(255, 255, 255, 0.85) !important;
+    }
+    section[data-testid="stSidebar"] .stMarkdown h1,
+    section[data-testid="stSidebar"] .stMarkdown h2,
+    section[data-testid="stSidebar"] .stMarkdown h3 {
+        color: #ffffff !important;
+    }
+    section[data-testid="stSidebar"] hr {
+        border-color: rgba(255,255,255,0.15) !important;
+    }
+
+    /* ── Image row styling ── */
+    .airpod-img-wrapper {
+        background: white;
+        border-radius: 16px;
+        padding: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .airpod-img-wrapper:hover {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+
+    /* ── Expander styling ── */
+    .streamlit-expanderHeader {
+        font-family: 'Nunito', sans-serif !important;
+        font-weight: 700 !important;
+        font-size: 1.05em !important;
+        color: var(--text-primary) !important;
+    }
+
+    /* ── Example chip buttons ── */
+    .example-chip {
         display: inline-block;
-        background: linear-gradient(135deg, #f8f4ff, #f0e6f6);
-        border: 1px solid #e2d9f3;
-        border-radius: 20px;
-        padding: 8px 16px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 1px solid #dee2e6;
+        border-radius: 50px;
+        padding: 8px 18px;
         margin: 4px;
         font-size: 0.85em;
-        color: #6a0572;
+        color: var(--text-primary);
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.2s ease;
     }
-    .sample-chip:hover {
-        background: linear-gradient(135deg, #6a0572, #9b59b6);
+    .example-chip:hover {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(106, 5, 114, 0.2);
+        border-color: transparent;
+        transform: translateY(-1px);
     }
 
-    /* ===== FEATURE PILLS ===== */
-    .feature-pills {
-        display: flex;
-        justify-content: center;
-        gap: 12px;
-        flex-wrap: wrap;
-        margin: 16px 0;
-        animation: fadeIn 1.8s ease-out;
+    /* ── Stat metric cards ── */
+    .metric-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 16px;
+        padding: 16px;
+        text-align: center;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
-    .feature-pill {
-        background: rgba(106, 5, 114, 0.06);
-        color: #6a0572;
-        padding: 6px 16px;
-        border-radius: 20px;
+    .metric-value {
+        font-family: 'Nunito', sans-serif;
+        font-size: 1.6em;
+        font-weight: 900;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .metric-label {
         font-size: 0.82em;
-        font-weight: 600;
-        border: 1px solid rgba(106, 5, 114, 0.1);
+        color: var(--text-secondary);
+        margin-top: 4px;
+        font-weight: 500;
     }
+
+    /* ── Toast / info strip ── */
+    .info-strip {
+        background: linear-gradient(90deg, #667eea20, #764ba220);
+        border-left: 4px solid #764ba2;
+        border-radius: 0 12px 12px 0;
+        padding: 12px 18px;
+        margin: 12px 0;
+        font-size: 0.92em;
+        color: var(--text-primary);
+    }
+
+    /* ── History item ── */
+    .history-item {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 12px 16px;
+        margin: 6px 0;
+        border-left: 4px solid;
+        font-size: 0.9em;
+    }
+
+    /* ── Scrollbar styling ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #764ba2; border-radius: 10px; }
     </style>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 
-# --- Hero Title ---
+# -----------------------------------------------------------------------------
+# SIDEBAR — App info, navigation, and settings
+# -----------------------------------------------------------------------------
+with st.sidebar:
+    st.markdown(
+        """
+        <div style="text-align:center; padding: 10px 0 20px 0;">
+            <span style="font-size: 3.5em;">🎧</span>
+            <h2 style="margin: 8px 0 0 0; font-family: 'Nunito', sans-serif; font-weight: 900;
+                        background: linear-gradient(135deg, #667eea, #f093fb);
+                        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+                        background-clip: text;">
+                AirPods Analyzer
+            </h2>
+            <p style="font-size: 0.85em; opacity: 0.7; margin-top: 4px;">
+                Powered by ALBERT-base-v2
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.divider()
+
+    # --- About section ---
+    st.markdown("### ℹ️ About")
+    st.markdown(
+        """
+        This app uses a **fine-tuned ALBERT** model to classify
+        Apple AirPods reviews into **Positive**, **Neutral**, or
+        **Negative** sentiments in real-time.
+        """
+    )
+
+    st.divider()
+
+    # --- How to use section ---
+    st.markdown("### 🚀 How to Use")
+    st.markdown(
+        """
+        1. ✍️ Type or paste a review  
+        2. 🔍 Click **Analyze Sentiment**  
+        3. 📊 View results & probabilities  
+        """
+    )
+
+    st.divider()
+
+    # --- Model details expander ---
+    with st.expander("🧠 Model Details"):
+        st.markdown(
+            f"""
+            | Property | Value |
+            |----------|-------|
+            | **Architecture** | ALBERT-base-v2 |
+            | **Task** | Sequence Classification |
+            | **Classes** | 3 (Neg / Neu / Pos) |
+            | **Max Length** | 512 tokens |
+            | **Source** | [HuggingFace Hub]({f'https://huggingface.co/{MODEL_REPO}'}) |
+            """
+        )
+
+    st.divider()
+
+    # --- Show analysis history toggle ---
+    show_history = st.toggle("📜 Show Analysis History", value=False,
+                             help="Toggle to display past analyses from this session")
+
+    st.divider()
+
+    # --- Footer ---
+    st.markdown(
+        """
+        <div style="text-align: center; padding-top: 10px; opacity: 0.6; font-size: 0.78em;">
+            Built with ❤️ using<br>
+            <strong>Streamlit</strong> · <strong>HuggingFace</strong> · <strong>PyTorch</strong>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+# -----------------------------------------------------------------------------
+# MAIN CONTENT — Hero Banner
+# -----------------------------------------------------------------------------
 st.markdown(
     """
-    <div class="hero-title-container">
-        <div class="hero-title">🎧 Apple AirPods</div>
-        <div class="hero-title" style="font-size: 2em; margin-top: -5px;">Sentiment Analysis</div>
-        <div class="hero-subtitle">Powered by ALBERT — Understand the emotion behind every review</div>
-        <div class="hero-badge">🤖 AI-Powered NLP</div>
+    <div class="hero-banner">
+        <h1>🎧 Apple AirPods Sentiment Analysis</h1>
+        <p class="hero-subtitle">Instantly understand the sentiment behind any AirPods review using AI</p>
     </div>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 
-# --- Feature Pills ---
-st.markdown(
-    """
-    <div class="feature-pills">
-        <span class="feature-pill">⚡ Real-time Analysis</span>
-        <span class="feature-pill">🎯 3-Class Classification</span>
-        <span class="feature-pill">📊 Confidence Scores</span>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-# --- AirPods Image Showcase ---
+# --- AirPods Image Row inside a glass card ---
 image_urls = [
     "https://i5.walmartimages.com/seo/Apple-AirPods-with-Charging-Case-2nd-Generation_8540ab4f-8062-48d0-9133-323a99ed921d.fb43fa09a0faef3f9495feece1397f8d.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
     "https://i5.walmartimages.com/asr/b6247579-386a-4bda-99aa-01e44801bc33.49db04f5e5b8d7f329c6580455e2e010.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
     "https://i5.walmartimages.com/asr/0f803868-d25f-4891-b0c8-e27a514ede02.f22c42c1ea17cd4d2b30fdfc89a8797c.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
     "https://i5.walmartimages.com/asr/df1b081f-4fa9-4ea5-87f8-413b9cad7a6e.f580d742da0a58bc25dadd30512adf72.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
-    "https://i5.walmartimages.com/asr/2830c8d7-292d-4b99-b92f-239b15ff1062.ce77d20b2f20a569bfd656d05ca89f7c.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF"
+    "https://i5.walmartimages.com/asr/2830c8d7-292d-4b99-b92f-239b15ff1062.ce77d20b2f20a569bfd656d05ca89f7c.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
 ]
 
-img_html = ""
-for url in image_urls:
-    img_html += f'<div class="product-img-wrapper"><img src="{url}" /></div>'
+cols = st.columns(5)
+for i, url in enumerate(image_urls):
+    with cols[i]:
+        st.markdown('<div class="airpod-img-wrapper">', unsafe_allow_html=True)
+        st.image(url, width=100)
+        st.markdown("</div>", unsafe_allow_html=True)
 
-st.markdown(
-    f"""
-    <div class="image-showcase">
-        <div class="image-showcase-title">📦 Featured AirPods Products</div>
-        <div class="image-row">{img_html}</div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+st.write("")  # Spacer
 
-# --- Input Section Card ---
+# -----------------------------------------------------------------------------
+# INPUT SECTION — Review entry
+# -----------------------------------------------------------------------------
 st.markdown(
     """
-    <div class="input-card">
-        <div class="input-label">✍️ Write or paste your review</div>
-        <div class="input-hint">Share your experience with Apple AirPods — we'll detect the sentiment instantly</div>
+    <div class="card-header">
+        <span class="card-header-icon">✍️</span> Enter Your Review
     </div>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 
-# --- Sample reviews as clickable chips ---
-sample_reviews = {
-    "👍 Great sound quality and seamless pairing!": "Great sound quality and seamless pairing with my iPhone!",
-    "👎 Battery dies too quickly": "The battery life is terrible, dies within 2 hours of use.",
-    "😐 They're okay, nothing special": "They're okay for the price, nothing special but they work fine.",
-    "❤️ Best purchase ever!": "Absolutely love these AirPods! Best purchase I've ever made, the noise cancellation is incredible!",
-    "💔 Fell apart after a month": "Terrible quality, one earbud stopped working after just a month. Complete waste of money."
+st.markdown(
+    '<div class="info-strip">💡 <strong>Tip:</strong> Write a detailed review for more accurate sentiment predictions. You can also try the example reviews below!</div>',
+    unsafe_allow_html=True,
+)
+
+# --- Example review selector ---
+example_reviews = {
+    "👍 Positive Example": "These AirPods are absolutely incredible! The sound quality is crystal clear, the noise cancellation is top-notch, and they fit perfectly in my ears. Best purchase I've made this year!",
+    "😐 Neutral Example": "The AirPods work fine for the price. Sound quality is decent and battery life is okay. Nothing special but they get the job done for everyday use.",
+    "👎 Negative Example": "Very disappointed with these AirPods. They keep disconnecting from my phone, the sound quality is mediocre at best, and they fell out of my ears constantly. Not worth the money.",
 }
 
-st.markdown('<div style="text-align:center; margin-bottom: 10px;"><span class="sample-title">💡 Try a sample review:</span></div>', unsafe_allow_html=True)
+with st.expander("📝 Try an Example Review", expanded=False):
+    selected_example = st.radio(
+        "Choose an example:",
+        options=list(example_reviews.keys()),
+        horizontal=True,
+        label_visibility="collapsed",
+    )
+    if st.button("📋 Load Example", key="load_example"):
+        st.session_state["review_text"] = example_reviews[selected_example]
 
-sample_cols = st.columns(len(sample_reviews))
-selected_sample = None
-for i, (chip_label, review_text) in enumerate(sample_reviews.items()):
-    with sample_cols[i]:
-        if st.button(chip_label, key=f"sample_{i}", use_container_width=True):
-            selected_sample = review_text
-
-# Use session state to manage sample selection
-if selected_sample:
-    st.session_state["review_text"] = selected_sample
-
-default_text = st.session_state.get("review_text", "")
-
+# --- User Input Text Area (core functionality preserved) ---
 user_input = st.text_area(
     "Enter your AirPods review here",
-    value=default_text,
     height=150,
-    placeholder="e.g., 'The sound quality is amazing and they fit perfectly in my ears...'"
+    value=st.session_state.get("review_text", ""),
+    placeholder="e.g., The AirPods Pro 2 have amazing noise cancellation and the sound quality is superb...",
+    label_visibility="collapsed",
 )
 
-st.write("")
+# --- Character counter ---
+char_count = len(user_input.strip())
+word_count = len(user_input.strip().split()) if user_input.strip() else 0
+col_c1, col_c2, col_c3 = st.columns(3)
+with col_c1:
+    st.caption(f"📝 **{char_count}** characters")
+with col_c2:
+    st.caption(f"📖 **{word_count}** words")
+with col_c3:
+    if char_count > 0:
+        st.caption("✅ Ready to analyze")
+    else:
+        st.caption("⏳ Waiting for input")
 
-# --- Analyze Button ---
+st.write("")  # Spacer
+
+# -----------------------------------------------------------------------------
+# ANALYZE BUTTON & RESULTS (CORE LOGIC UNCHANGED)
+# -----------------------------------------------------------------------------
 if st.button("🔍 Analyze Sentiment"):
     if not user_input.strip():
         st.error("⚠️ Please enter a review to analyze.")
     elif model is None:
         st.error("Model failed to load. Please check the repo ID.")
     else:
-        # Animated progress
-        progress_bar = st.progress(0)
-        status_text = st.empty()
+        with st.spinner("🧠 Analyzing sentiment..."):
+            time.sleep(0.5)  # Simulate processing time
 
-        steps = ["🔄 Tokenizing input...", "🧠 Running ALBERT model...", "📊 Computing probabilities...", "✅ Done!"]
-        for i, step in enumerate(steps):
-            status_text.markdown(f"<p style='text-align:center; color:#6a0572; font-weight:600;'>{step}</p>", unsafe_allow_html=True)
-            progress_bar.progress((i + 1) * 25)
-            time.sleep(0.3)
+            # Predict (CORE LOGIC — UNCHANGED)
+            probs = predict_sentiment(user_input)
+            label, bg_color = get_sentiment_info(probs)
+            confidence = np.max(probs) * 100
 
-        probs = predict_sentiment(user_input)
-        label, bg_color = get_sentiment_info(probs)
-        confidence = np.max(probs) * 100
+        # --- Save to history ---
+        st.session_state.history.insert(
+            0,
+            {
+                "text": user_input[:80] + ("..." if len(user_input) > 80 else ""),
+                "label": label,
+                "confidence": confidence,
+                "color": bg_color,
+            },
+        )
 
-        # Clear progress indicators
-        progress_bar.empty()
-        status_text.empty()
+        st.divider()
 
-        # Determine result styling
-        max_index = np.argmax(probs)
-        emojis = ["😡", "😐", "😊"]
-        sentiment_names = ["Negative", "Neutral", "Positive"]
-        sentiment_colors = ["#e74c3c", "#f0a500", "#11998e"]
-        result_bg_gradients = [
-            "linear-gradient(135deg, #fff5f5, #fed7d7)",
-            "linear-gradient(135deg, #fffff0, #fefcbf)",
-            "linear-gradient(135deg, #f0fff4, #c6f6d5)"
-        ]
-
-        emoji = emojis[max_index]
-        sentiment_name = sentiment_names[max_index]
-        sentiment_color = sentiment_colors[max_index]
-        result_bg = result_bg_gradients[max_index]
-
-        # Build probability bars
-        prob_bars_html = ""
-        bar_classes = ["prob-bar-negative", "prob-bar-neutral", "prob-bar-positive"]
-        bar_labels = ["😡 Negative", "😐 Neutral", "😊 Positive"]
-
-        for i in range(3):
-            pct = probs[i] * 100
-            prob_bars_html += f"""
-            <div class="prob-row">
-                <span class="prob-label">{bar_labels[i]}</span>
-                <div class="prob-bar-container">
-                    <div class="prob-bar {bar_classes[i]}" style="width: {pct:.1f}%;">
-                        <span class="prob-value">{pct:.1f}%</span>
-                    </div>
-                </div>
-            </div>
+        # --- Results Section Header ---
+        st.markdown(
             """
+            <div class="card-header" style="justify-content: center; margin-top: 8px;">
+                <span class="card-header-icon">📊</span> Analysis Results
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        # --- Main Result Card (original output preserved, enhanced styling) ---
+        # Determine richer background + shadow color based on sentiment
+        sentiment_styles = {
+            "#F5C6CB": {"gradient": "linear-gradient(135deg, #F5C6CB 0%, #f8d7da 100%)", "shadow": "rgba(245,198,203,0.5)", "icon": "😡"},
+            "#FFE8A1": {"gradient": "linear-gradient(135deg, #FFE8A1 0%, #fff3cd 100%)", "shadow": "rgba(255,232,161,0.5)", "icon": "😐"},
+            "#C3E6CB": {"gradient": "linear-gradient(135deg, #C3E6CB 0%, #d4edda 100%)", "shadow": "rgba(195,230,203,0.5)", "icon": "😊"},
+        }
+        style = sentiment_styles.get(bg_color, {"gradient": bg_color, "shadow": "rgba(0,0,0,0.1)", "icon": ""})
 
         st.markdown(
             f"""
-            <div class="result-card">
-                <div class="result-header" style="background: {result_bg};">
-                    <div class="result-emoji">{emoji}</div>
-                    <div class="result-sentiment" style="color: {sentiment_color};">{sentiment_name}</div>
-                    <div class="result-confidence-label">Confidence Score</div>
-                    <div class="result-confidence-value" style="color: {sentiment_color};">{confidence:.1f}%</div>
-                </div>
-                <div class="prob-section">
-                    <div class="prob-section-title">📊 Probability Distribution</div>
-                    {prob_bars_html}
-                </div>
+            <div class="result-card" style="background: {style['gradient']};
+                        box-shadow: 0 10px 30px {style['shadow']};">
+                <div style="font-size: 3em; margin-bottom: 8px;">{style['icon']}</div>
+                <p class="result-label">Sentiment: {label}</p>
+                <p class="result-confidence">Confidence: {confidence:.2f}%</p>
             </div>
             """,
-            unsafe_allow_html=True
+            unsafe_allow_html=True,
         )
 
-        # Clear the stored sample after analysis
-        if "review_text" in st.session_state:
-            del st.session_state["review_text"]
+        st.write("")  # Spacer
 
-# --- Footer ---
+        # --- Detailed Probability Breakdown ---
+        with st.expander("📈 Detailed Probability Breakdown", expanded=True):
+            prob_labels = ["Negative 😡", "Neutral 😐", "Positive 😊"]
+            prob_colors = ["#e74c3c", "#f39c12", "#27ae60"]
+
+            for idx, (p_label, p_color, p_val) in enumerate(
+                zip(prob_labels, prob_colors, probs)
+            ):
+                pct = p_val * 100
+                st.markdown(
+                    f"""
+                    <div class="prob-bar-container">
+                        <div class="prob-label-row">
+                            <span>{p_label}</span>
+                            <span>{pct:.1f}%</span>
+                        </div>
+                        <div class="prob-bar-bg">
+                            <div class="prob-bar-fill" style="width: {pct}%; background: {p_color};"></div>
+                        </div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+
+        # --- Quick Stats Row ---
+        st.write("")
+        stat1, stat2, stat3 = st.columns(3)
+        with stat1:
+            st.markdown(
+                f"""
+                <div class="metric-card">
+                    <div class="metric-value">{confidence:.1f}%</div>
+                    <div class="metric-label">Confidence Score</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        with stat2:
+            st.markdown(
+                f"""
+                <div class="metric-card">
+                    <div class="metric-value">{word_count}</div>
+                    <div class="metric-label">Words Analyzed</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        with stat3:
+            dominant = label.split()[0]
+            st.markdown(
+                f"""
+                <div class="metric-card">
+                    <div class="metric-value">{dominant}</div>
+                    <div class="metric-label">Dominant Sentiment</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+        st.balloons()
+
+# -----------------------------------------------------------------------------
+# ANALYSIS HISTORY — Shown via sidebar toggle
+# -----------------------------------------------------------------------------
+if show_history and st.session_state.history:
+    st.write("")
+    st.divider()
+    st.markdown(
+        """
+        <div class="card-header">
+            <span class="card-header-icon">📜</span> Analysis History
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    for idx, item in enumerate(st.session_state.history[:10]):  # Show last 10
+        border_color = item["color"]
+        st.markdown(
+            f"""
+            <div class="history-item" style="border-left-color: {border_color};">
+                <strong>{item['label']}</strong> — {item['confidence']:.1f}% confidence<br>
+                <span style="color: #777; font-size: 0.85em;">"{item['text']}"</span>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    if st.button("🗑️ Clear History", key="clear_history"):
+        st.session_state.history = []
+        st.rerun()
+
+elif show_history and not st.session_state.history:
+    st.info("📭 No analyses yet. Enter a review and click **Analyze Sentiment** to get started!")
+
+# -----------------------------------------------------------------------------
+# FOOTER
+# -----------------------------------------------------------------------------
+st.write("")
+st.write("")
 st.markdown(
     """
-    <div class="app-footer">
-        <p>Built with ❤️ using <a href="https://streamlit.io" target="_blank">Streamlit</a> & 
-        <a href="https://huggingface.co" target="_blank">🤗 Hugging Face Transformers</a></p>
-        <p style="font-size: 0.8em; margin-top: 4px;">Model: ALBERT-base-v2 fine-tuned on Apple AirPods reviews</p>
+    <div style="text-align: center; padding: 30px 0 10px 0; opacity: 0.5; font-size: 0.82em;">
+        🎧 AirPods Sentiment Analyzer &nbsp;·&nbsp; Built with
+        <a href="https://streamlit.io" target="_blank" style="color: #764ba2; text-decoration: none;">Streamlit</a> &
+        <a href="https://huggingface.co" target="_blank" style="color: #764ba2; text-decoration: none;">HuggingFace</a>
     </div>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
