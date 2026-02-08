@@ -165,7 +165,7 @@ for i, url in enumerate(image_urls):
 st.write("")
 
 # --- User Input Text Area (Increased Height param) ---
-user_input = st.text_area("Enter your AirPods review here", height=170)
+user_input = st.text_area("Enter your AirPods review here", height=20)
 
 st.write("")
 
