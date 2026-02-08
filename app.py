@@ -32,14 +32,9 @@ tokenizer, model = load_model()
 # -----------------------------------------------------------------------------
 # HELPER FUNCTIONS
 # -----------------------------------------------------------------------------
+
 def predict_sentiment(text):
-    inputs = tokenizer(
-        text,
-        return_tensors="pt",
-        truncation=True,
-        padding=True,
-        max_length=512,
-    )
+    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
     with torch.no_grad():
         outputs = model(**inputs)
     probs = torch.nn.functional.softmax(outputs.logits, dim=1)
@@ -47,13 +42,14 @@ def predict_sentiment(text):
 
 def get_sentiment_info(probs):
     labels = ["Negative 😡", "Neutral 😐", "Positive 😊"]
-    colors = ["#F5C6CB", "#FFE8A1", "#C3E6CB"]
+    colors = ["#F5C6CB", "#FFE8A1", "#C3E6CB"] 
     max_index = np.argmax(probs)
     return labels[max_index], colors[max_index]
 
 # -----------------------------------------------------------------------------
 # UI & CSS
 # -----------------------------------------------------------------------------
+
 st.markdown(
     """
     <style>
@@ -100,15 +96,6 @@ st.markdown(
         font-size: 18px;
     }
 
-    /* 🔥 CUSTOM THICK & DARK DIVIDER */
-    hr {
-        border: none;
-        height: 6px;
-        background: linear-gradient(90deg, #ff8a00, #e52e71);
-        border-radius: 10px;
-        margin: 30px 0;
-    }
-
     /* 🔥 REMOVE STREAMLIT DEFAULT TEXTAREA WRAPPER */
     .stTextArea > div {
         border: none !important;
@@ -138,15 +125,15 @@ st.markdown(
     }
     </style>
     """,
-    unsafe_allow_html=True,
+    unsafe_allow_html=True
 )
 
-# -----------------------------------------------------------------------------
-# APP UI
-# -----------------------------------------------------------------------------
+# --- App Title ---
 st.markdown(
-    "<h1 style='font-size:45px;'>Apple AirPods Sentiment Analysis</h1>",
-    unsafe_allow_html=True,
+    """
+    <h1 style="font-size: 45px; text-align: center;">Apple AirPods Sentiment Analysis</h1>
+    """,
+    unsafe_allow_html=True
 )
 
 # --- AirPods Image Row ---
@@ -155,7 +142,7 @@ image_urls = [
     "https://i5.walmartimages.com/asr/b6247579-386a-4bda-99aa-01e44801bc33.49db04f5e5b8d7f329c6580455e2e010.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
     "https://i5.walmartimages.com/asr/0f803868-d25f-4891-b0c8-e27a514ede02.f22c42c1ea17cd4d2b30fdfc89a8797c.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
     "https://i5.walmartimages.com/asr/df1b081f-4fa9-4ea5-87f8-413b9cad7a6e.f580d742da0a58bc25dadd30512adf72.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
-    "https://i5.walmartimages.com/asr/2830c8d7-292d-4b99-b92f-239b15ff1062.ce77d20b2f20a569bfd656d05ca89f7c.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
+    "https://i5.walmartimages.com/asr/2830c8d7-292d-4b99-b92f-239b15ff1062.ce77d20b2f20a569bfd656d05ca89f7c.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF"
 ]
 
 cols = st.columns(5)
@@ -165,12 +152,12 @@ for i, url in enumerate(image_urls):
 
 st.write("")
 
-# --- User Input ---
+# --- User Input Text Area ---
 user_input = st.text_area("Enter your AirPods review here", height=150)
 
 st.write("")
 
-# --- Analyze Button ---
+# --- Analyze Sentiment Button ---
 col1, col2, col3 = st.columns([1, 1, 1])
 with col2:
     analyze_button = st.button("🔍 Analyze Sentiment")
@@ -187,11 +174,13 @@ if analyze_button:
             label, bg_color = get_sentiment_info(probs)
             confidence = np.max(probs) * 100
 
-           st.markdown(
-    """
-    <hr style="border: none; height: 2px; background-color: #000000; margin: 20px 0; border-radius: 1px;">
-    """,
-    unsafe_allow_html=True)
+        # --- DARK THICK DIVIDER LINE ---
+        st.markdown(
+            """
+            <hr style="border: none; height: 4px; background-color: #000000; margin: 20px 0; border-radius: 2px;">
+            """,
+            unsafe_allow_html=True
+        )
 
         label_text = label.split()[0]
         label_emoji = label.split()[1]
@@ -204,5 +193,5 @@ if analyze_button:
                 <p style="font-size: 16px;">(Confidence: {confidence:.2f}%)</p>
             </div>
             """,
-            unsafe_allow_html=True,
+            unsafe_allow_html=True
         )
