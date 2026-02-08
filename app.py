@@ -15,11 +15,13 @@ st.set_page_config(
 # -----------------------------------------------------------------------------
 # MODEL LOADING
 # -----------------------------------------------------------------------------
+# Your Hugging Face Repo ID
 MODEL_REPO = "IamPradeep/Apple-Airpods-Sentiment-Analysis-ALBERT-base-v2"
 
 @st.cache_resource
 def load_model():
     try:
+        # Load directly from Hugging Face Hub
         tokenizer = AlbertTokenizerFast.from_pretrained(MODEL_REPO)
         model = AutoModelForSequenceClassification.from_pretrained(MODEL_REPO)
         return tokenizer, model
@@ -27,6 +29,7 @@ def load_model():
         st.error(f"Error loading model from Hugging Face: {e}")
         return None, None
 
+# Load the model
 tokenizer, model = load_model()
 
 # -----------------------------------------------------------------------------
@@ -34,73 +37,81 @@ tokenizer, model = load_model()
 # -----------------------------------------------------------------------------
 
 def predict_sentiment(text):
+    # Prepare input
     inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
+    # Inference
     with torch.no_grad():
         outputs = model(**inputs)
+    # Probabilities
     probs = torch.nn.functional.softmax(outputs.logits, dim=1)
     return probs.detach().numpy()[0]
 
 def get_sentiment_info(probs):
+    # Labels corresponding to model output: 0->Negative, 1->Neutral, 2->Positive
     labels = ["Negative 😡", "Neutral 😐", "Positive 😊"]
+    
+    # Original reference colors
     colors = ["#F5C6CB", "#FFE8A1", "#C3E6CB"] 
+    
     max_index = np.argmax(probs)
     return labels[max_index], colors[max_index]
 
 # -----------------------------------------------------------------------------
-# UI & CSS
+# UI & CSS (Matched exactly to reference)
 # -----------------------------------------------------------------------------
 
 st.markdown(
     """
     <style>
+    /* Import Google Fonts - Keeping Nunito and Open Sans for general text */
     @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700&family=Open+Sans:wght@400;600&display=swap');
 
     .main {
-        background-color: #F0F2F6;
-        font-family: 'Open Sans', sans-serif;
+        background-color: #F0F2F6; /* Original main background color */
+        font-family: 'Open Sans', sans-serif; /* Keep Open Sans for body */
         color: #333;
     }
     h1 {
-        font-family: 'Nunito', sans-serif;
-        color: #6a0572;
+        font-family: 'Nunito', sans-serif; /* Keep Nunito for title */
+        color: #6a0572; /* Original title color */
         text-align: center;
-        font-size: 3em;
+        font-size: 3em; /* Original title size */
         margin-bottom: 15px;
-        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* Original text shadow */
     }
     .stButton>button {
-        background: linear-gradient(90deg, #ff8a00, #e52e71);
+        background: linear-gradient(90deg, #ff8a00, #e52e71); /* Original button gradient */
         color: white !important;
         border: none;
-        border-radius: 25px;
+        border-radius: 25px; /* Original button border-radius */
         padding: 10px 20px;
-        font-size: 1.2em;
-        font-weight: bold;
+        font-size: 1.2em; /* Original button font-size */
+        font-weight: bold; /* Original button font-weight */
         cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition: transform 0.2s ease, box-shadow 0.2s ease; /* Original button transition */
         width: 100%;
     }
     .stButton>button:hover {
-        transform: scale(1.05);
-        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+        transform: scale(1.05); /* Original button hover transform */
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3); /* Original button hover box-shadow */
         color: white !important;
     }
     .prediction-box {
-        border-radius: 25px;
-        padding: 10px;
-        text-align: center;
-        font-size: 18px;
+        border-radius: 25px; /* Original prediction box border-radius */
+        padding: 10px; /* Original prediction box padding */
+        text-align: center; /* Original prediction box text-align */
+        font-size: 18px; /* Original prediction box font-size */
     }
     .stTextArea textarea {
-        border-radius: 15px;
-        border: 1px solid #ced4da;
-        padding: 10px;
-        background-color: #FFFFFF;
-        box-shadow: 3px 3px 5px #9E9E9E;
+        border-radius: 15px; /* Keep text area border-radius */
+        border: 1px solid #ced4da; /* Keep text area border */
+        padding: 10px; /* Keep text area padding */
+        background-color: #FFFFFF; /* Keep text area background */
+        box-shadow: 3px 3px 5px #9E9E9E; /* Keep text area shadow */
     }
     .stTextArea textarea::placeholder {
-        color: #999;
-        font-style: italic;
+        color: #999; /* Light gray placeholder text */
+        font-style: italic; /* Italic placeholder text */
     }
     </style>
     """,
@@ -129,39 +140,35 @@ for i, url in enumerate(image_urls):
     with cols[i]:
         st.image(url, width=100)
 
-st.write("")  # Spacer
+st.write("") # Spacer
 
 # --- User Input Text Area ---
 user_input = st.text_area("Enter your AirPods review here", height=150)
 
-st.write("")  # Spacer
+st.write("") # Spacer
 
 # --- Analyze Sentiment Button ---
-if st.button("🔍 Analyze Sentiment"):
+if st.button("🔍 Analyze Sentiment"): 
     if not user_input.strip():
         st.error("⚠️ Please enter a review to analyze.")
     elif model is None:
         st.error("Model failed to load. Please check the repo ID.")
     else:
-        with st.spinner('Analyzing sentiment...'):
-            time.sleep(0.5)  # Simulate processing time
+        with st.spinner('Analyzing sentiment...'): 
+            time.sleep(0.5) # Simulate processing time
+            
+            # Predict
             probs = predict_sentiment(user_input)
             label, bg_color = get_sentiment_info(probs)
             confidence = np.max(probs) * 100
 
-        st.divider()
-
-        # Extract emoji from label for new display format
-        label_text = label.split()[0]        # Example: "Positive"
-        label_emoji = label.split()[1]       # Example: "😊"
-
-        # ---
-        # Modified Display Format (structure changed only here as requested)
+        st.divider() 
+        
+        # --- Output Section (Restored to reference format) ---
         st.markdown(
             f"""
             <div style="background-color:{bg_color}; padding: 10px; border-radius: 25px; text-align: center;" class="prediction-box">
-                <div style="font-size: 3em; margin-bottom: 10px;">{label_emoji}</div>
-                <h3><span style="font-weight: bold;">Sentiment</span>: {label_text}</h3>
+                <h3><span style="font-weight: bold;">Sentiment</span>: {label}</h3>
                 <p style="margin-top: 5px; font-size: 16px;">(Confidence: {confidence:.2f}%)</p>
             </div>
             """,
