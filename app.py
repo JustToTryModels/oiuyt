@@ -107,7 +107,7 @@ st.markdown(
     /* 🎯 STYLE ONLY THE TEXTAREA */
     .stTextArea textarea {
         border-radius: 40px;
-        border: 2px solid red !important;
+        border: 1px solid red !important;
         padding: 16px;
         background-color: #FFFFFF !important;
         box-shadow: 3px 3px 5px #9E9E9E;
