@@ -189,7 +189,7 @@ if analyze_button:
 
         st.markdown(
     """
-    <hr style="border: none; height: 2px; background-color: #333; margin: 20px 0; border-radius: 1px;">
+    <hr style="border: none; height: 2px; background-color: #000000; margin: 20px 0; border-radius: 1px;">
     """,
     unsafe_allow_html=True)
 
