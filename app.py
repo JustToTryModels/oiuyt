@@ -73,12 +73,18 @@ st.markdown(
         color: white !important;
         border: none;
         border-radius: 25px;
-        padding: 10px 20px;
+        padding: 12px 30px;
         font-size: 1.2em;
         font-weight: bold;
         cursor: pointer;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
-        width: 100%;
+        
+        /* --- MODIFIED BUTTON STYLES BELOW --- */
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 50%; 
+        /* ------------------------------------ */
     }
     .stButton>button:hover {
         transform: scale(1.05);
@@ -136,12 +142,8 @@ user_input = st.text_area("Enter your AirPods review here", height=150)
 
 st.write("")  # Spacer
 
-# --- Analyze Sentiment Button (Centered) ---
-col1, col2, col3 = st.columns([1.5, 1, 1.5])
-with col2:
-    analyze_clicked = st.button("🔍 Analyze Sentiment")
-
-if analyze_clicked:
+# --- Analyze Sentiment Button ---
+if st.button("🔍 Analyze Sentiment"):
     if not user_input.strip():
         st.error("⚠️ Please enter a review to analyze.")
     elif model is None:
