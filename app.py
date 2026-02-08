@@ -189,10 +189,9 @@ if analyze_button:
 
         st.markdown(
     """
-    <hr style="border: none; height: 4px; background-color: #333; margin: 20px 0; border-radius: 2px;">
+    <hr style="border: none; height: 4px; background-color: #333; margin: 10px 0; border-radius: 2px;">
     """,
-    unsafe_allow_html=True
-)  # ← NOW THICK & DARK ✨
+    unsafe_allow_html=True)
 
         label_text = label.split()[0]
         label_emoji = label.split()[1]
