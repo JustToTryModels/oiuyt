@@ -42,7 +42,7 @@ def predict_sentiment(text):
 
 def get_sentiment_info(probs):
     labels = ["Negative 😡", "Neutral 😐", "Positive 😊"]
-    colors = ["#F5C6CB", "#FFE8A1", "#C3E6CB"] 
+    colors = ["#F5C6CB", "#FFE8A1", "#C3E6CB"]
     max_index = np.argmax(probs)
     return labels[max_index], colors[max_index]
 
@@ -96,39 +96,82 @@ st.markdown(
         font-size: 18px;
     }
 
-    /* 🔥 STRIP DEFAULT STREAMLIT WRAPPERS */
+    /* ========== KILL EVERY DEFAULT WRAPPER ========== */
+
+    /* Remove label "Enter your AirPods review here" bottom gap if needed */
+    .stTextArea label {
+        font-weight: 600;
+    }
+
+    /* Outermost Streamlit wrapper */
     .stTextArea > div {
         border: none !important;
         background: transparent !important;
         box-shadow: none !important;
         padding: 0 !important;
     }
-    
-    .stTextArea [data-baseweb="textarea"], 
-    .stTextArea [data-baseweb="base-input"],
-    .stTextArea > div > div,
-    .stTextArea > div > div > div {
+
+    /* BaseWeb textarea wrapper — THIS is the culprit with the 4-corner border */
+    .stTextArea [data-baseweb="textarea"] {
         border: none !important;
         background: transparent !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* BaseWeb inner base-input container */
+    .stTextArea [data-baseweb="base-input"] {
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Remove the focused / active / hovered outlines on wrappers */
+    .stTextArea [data-baseweb="textarea"]:focus-within,
+    .stTextArea [data-baseweb="textarea"]:hover,
+    .stTextArea [data-baseweb="textarea"]:active,
+    .stTextArea [data-baseweb="base-input"]:focus-within,
+    .stTextArea [data-baseweb="base-input"]:hover,
+    .stTextArea [data-baseweb="base-input"]:active {
+        border: none !important;
         box-shadow: none !important;
         outline: none !important;
     }
 
-    /* 🎯 STYLE THE TEXTAREA & INCREASE VERTICAL SIZE */
+    /* Nuke any nested divs inside that still carry borders */
+    .stTextArea > div > div {
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .stTextArea > div > div > div {
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    /* ========== STYLE ONLY THE ACTUAL TEXTAREA ========== */
     .stTextArea textarea {
         border-radius: 40px !important;
         border: 2px solid red !important;
-        padding: 20px !important;
+        padding: 16px !important;
         background-color: #FFFFFF !important;
         box-shadow: 3px 3px 5px #9E9E9E !important;
         outline: none !important;
-        /* Force height expansion in CSS to match Streamlit param */
-        min-height: 250px !important; 
     }
 
     .stTextArea textarea:focus {
         border: 2px solid red !important;
         box-shadow: 3px 3px 5px #9E9E9E !important;
+        outline: none !important;
+    }
+
+    .stTextArea textarea:hover {
+        border: 2px solid red !important;
     }
 
     .stTextArea textarea::placeholder {
@@ -164,8 +207,8 @@ for i, url in enumerate(image_urls):
 
 st.write("")
 
-# --- User Input Text Area (Increased Height param) ---
-user_input = st.text_area("Enter your AirPods review here", height=20)
+# --- User Input Text Area ---
+user_input = st.text_area("Enter your AirPods review here", height=150)
 
 st.write("")
 
