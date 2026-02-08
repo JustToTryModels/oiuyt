@@ -1,3 +1,5 @@
+--- START OF FILE Paste February 08, 2026 - 2:01PM ---
+
 import streamlit as st
 from transformers import AlbertTokenizerFast, AutoModelForSequenceClassification
 import torch
@@ -214,39 +216,12 @@ st.markdown(
         font-style: italic !important;
     }
 
-    /* ── Result card with animation ── */
-    .result-card {
-        border-radius: 24px;
-        padding: 30px 24px;
+    /* ── Prediction Box (Imported from Code-2) ── */
+    .prediction-box {
+        border-radius: 25px;
+        padding: 10px;
         text-align: center;
-        animation: fadeSlideUp 0.6s ease-out;
-        position: relative;
-        overflow: hidden;
-    }
-    .result-card::after {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        border-radius: 24px;
-        border: 2px solid rgba(255,255,255,0.5);
-        pointer-events: none;
-    }
-    @keyframes fadeSlideUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-    .result-label {
-        font-family: 'Nunito', sans-serif;
-        font-size: 1.8em;
-        font-weight: 900;
-        margin: 0;
-        color: var(--text-primary);
-    }
-    .result-confidence {
-        font-size: 1em;
-        color: var(--text-secondary);
-        margin-top: 8px;
-        font-weight: 500;
+        font-size: 18px;
     }
 
     /* ── Probability bars ── */
@@ -602,25 +577,15 @@ if st.button("🔍 Analyze Sentiment"):
             unsafe_allow_html=True,
         )
 
-        # --- Main Result Card (original output preserved, enhanced styling) ---
-        # Determine richer background + shadow color based on sentiment
-        sentiment_styles = {
-            "#F5C6CB": {"gradient": "linear-gradient(135deg, #F5C6CB 0%, #f8d7da 100%)", "shadow": "rgba(245,198,203,0.5)", "icon": "😡"},
-            "#FFE8A1": {"gradient": "linear-gradient(135deg, #FFE8A1 0%, #fff3cd 100%)", "shadow": "rgba(255,232,161,0.5)", "icon": "😐"},
-            "#C3E6CB": {"gradient": "linear-gradient(135deg, #C3E6CB 0%, #d4edda 100%)", "shadow": "rgba(195,230,203,0.5)", "icon": "😊"},
-        }
-        style = sentiment_styles.get(bg_color, {"gradient": bg_color, "shadow": "rgba(0,0,0,0.1)", "icon": ""})
-
+        # --- Main Result Card (REPLACED WITH CODE-2 STRUCTURE) ---
         st.markdown(
             f"""
-            <div class="result-card" style="background: {style['gradient']};
-                        box-shadow: 0 10px 30px {style['shadow']};">
-                <div style="font-size: 3em; margin-bottom: 8px;">{style['icon']}</div>
-                <p class="result-label">Sentiment: {label}</p>
-                <p class="result-confidence">Confidence: {confidence:.2f}%</p>
+            <div style="background-color:{bg_color}; padding: 10px; border-radius: 25px; text-align: center;" class="prediction-box">
+                <h3><span style="font-weight: bold;">Sentiment</span>: {label}</h3>
+                <p style="margin-top: 5px; font-size: 16px;">(Confidence: {confidence:.2f}%)</p>
             </div>
             """,
-            unsafe_allow_html=True,
+            unsafe_allow_html=True
         )
 
         st.write("")  # Spacer
