@@ -87,21 +87,19 @@ Try the live sentiment analysis app here:
 
 [![Open Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://project-sentiment-analysis.streamlit.app/)
 
-### Positive Sentiment
-<img src="https://github.com/JustToTryModels/oiuyt/blob/main/Positive_Review.png?raw=true" 
-     alt="Positive Sentiment Example" 
-     width="600">
+<table>
+<tr>
+<td align="center"><img src="https://github.com/JustToTryModels/oiuyt/blob/main/Positive_Review.png?raw=true" alt="Positive Sentiment Example" width="380" /></td>
+<td align="center"><img src="https://github.com/JustToTryModels/oiuyt/blob/main/Negative_Review.png?raw=true" alt="Negative Sentiment Example" width="380" /></td>
+<td align="center"><img src="https://github.com/JustToTryModels/oiuyt/blob/main/Neutral_Review.png?raw=true" alt="Neutral Sentiment Example" width="380" /></td>
+</tr>
+<tr>
+<td align="center"><b>😊 Positive Sentiment</b></td>
+<td align="center"><b>😠 Negative Sentiment</b></td>
+<td align="center"><b>😐 Neutral Sentiment</b></td>
+</tr>
+</table>
 
-### Negative Sentiment
-<img src="https://github.com/JustToTryModels/oiuyt/blob/main/Negative_Review.png?raw=true" 
-     alt="Negative Sentiment Example" 
-     width="600">
-
-### Neutral Sentiment
-<img src="https://github.com/JustToTryModels/oiuyt/blob/main/Neutral_Review.png?raw=true" 
-     alt="Neutral Sentiment Example" 
-     width="600">
-     
 </div>
 
 > Enter any Apple AirPods review and get an instant sentiment prediction powered by fine-tuned ALBERT!
