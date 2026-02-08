@@ -87,8 +87,19 @@ Try the live sentiment analysis app here:
 
 [![Open Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://project-sentiment-analysis.streamlit.app/)
 
-<img src="https://github.com/MarpakaPradeepSai/Project-Sentiment-Analysis/blob/main/Data/Images%20&%20GIFs/Screenshot%202026-02-07%20171501.png?raw=true" 
-     alt="Streamlit App Demo Screenshot" 
+### Positive Sentiment
+<img src="https://github.com/JustToTryModels/oiuyt/blob/main/Positive_Review.png?raw=true" 
+     alt="Positive Sentiment Example" 
+     width="600">
+
+### Negative Sentiment
+<img src="https://github.com/JustToTryModels/oiuyt/blob/main/Negative_Review.png?raw=true" 
+     alt="Negative Sentiment Example" 
+     width="600">
+
+### Neutral Sentiment
+<img src="https://github.com/JustToTryModels/oiuyt/blob/main/Neutral_Review.png?raw=true" 
+     alt="Neutral Sentiment Example" 
      width="600">
      
 </div>
