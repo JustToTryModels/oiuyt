@@ -93,7 +93,7 @@ st.markdown(
     }
     /* UPDATED CSS FOR TEXT AREA BORDER */
     .stTextArea textarea {
-        border-radius: 15px;
+        border-radius: 30px;
         border: 2px solid red !important; /* Always Red */
         padding: 10px;
         background-color: #FFFFFF;
