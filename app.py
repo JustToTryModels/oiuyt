@@ -60,6 +60,7 @@ st.markdown(
         font-family: 'Open Sans', sans-serif;
         color: #333;
     }
+
     h1 {
         font-family: 'Nunito', sans-serif;
         color: #6a0572;
@@ -68,7 +69,8 @@ st.markdown(
         margin-bottom: 15px;
         text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
     }
-    .stButton>button {
+
+    .stButton > button {
         background: linear-gradient(90deg, #ff8a00, #e52e71);
         color: white !important;
         border: none;
@@ -80,29 +82,43 @@ st.markdown(
         transition: transform 0.2s ease, box-shadow 0.2s ease;
         width: 100%;
     }
-    .stButton>button:hover {
+
+    .stButton > button:hover {
         transform: scale(1.05);
         box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
         color: white !important;
     }
+
     .prediction-box {
         border-radius: 25px;
         padding: 10px;
         text-align: center;
         font-size: 18px;
     }
-    /* UPDATED CSS FOR TEXT AREA BORDER */
+
+    /* 🔥 REMOVE STREAMLIT DEFAULT TEXTAREA WRAPPER */
+    .stTextArea > div {
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+
+    /* 🎯 STYLE ONLY THE TEXTAREA */
     .stTextArea textarea {
-        border-radius: 30px;
-        border: 2px solid red !important; /* Always Red */
-        padding: 10px;
-        background-color: #FFFFFF;
+        border-radius: 40px;
+        border: 2px solid red !important;
+        padding: 16px;
+        background-color: #FFFFFF !important;
         box-shadow: 3px 3px 5px #9E9E9E;
+        outline: none !important;
     }
+
     .stTextArea textarea:focus {
-        border: 2px solid red !important; /* Stays Red on Click/Focus */
-        box-shadow: 3px 3px 5px #9E9E9E !important; /* Keep shadow, prevent theme color override */
+        border: 2px solid red !important;
+        box-shadow: 3px 3px 5px #9E9E9E !important;
     }
+
     .stTextArea textarea::placeholder {
         color: #999;
         font-style: italic;
@@ -134,17 +150,15 @@ for i, url in enumerate(image_urls):
     with cols[i]:
         st.image(url, width=100)
 
-st.write("")  # Spacer
+st.write("")
 
 # --- User Input Text Area ---
 user_input = st.text_area("Enter your AirPods review here", height=150)
 
-st.write("")  # Spacer
+st.write("")
 
-# --- Analyze Sentiment Button (Centered) ---
-# Create 3 columns, putting the button in the middle one to center it
+# --- Analyze Sentiment Button ---
 col1, col2, col3 = st.columns([1, 1, 1])
-
 with col2:
     analyze_button = st.button("🔍 Analyze Sentiment")
 
@@ -154,26 +168,23 @@ if analyze_button:
     elif model is None:
         st.error("Model failed to load. Please check the repo ID.")
     else:
-        with st.spinner('Analyzing sentiment...'):
-            time.sleep(0.5)  # Simulate processing time
+        with st.spinner("Analyzing sentiment..."):
+            time.sleep(0.5)
             probs = predict_sentiment(user_input)
             label, bg_color = get_sentiment_info(probs)
             confidence = np.max(probs) * 100
 
         st.divider()
 
-        # Extract emoji from label for new display format
-        label_text = label.split()[0]        # Example: "Positive"
-        label_emoji = label.split()[1]       # Example: "😊"
+        label_text = label.split()[0]
+        label_emoji = label.split()[1]
 
-        # ---
-        # Modified Display Format
         st.markdown(
             f"""
             <div style="background-color:{bg_color}; padding: 10px; border-radius: 25px; text-align: center;" class="prediction-box">
                 <div style="font-size: 3em; margin-bottom: 10px;">{label_emoji}</div>
-                <h3><span style="font-weight: bold;">Sentiment</span>: {label_text}</h3>
-                <p style="margin-top: 5px; font-size: 16px;">(Confidence: {confidence:.2f}%)</p>
+                <h3><strong>Sentiment</strong>: {label_text}</h3>
+                <p style="font-size: 16px;">(Confidence: {confidence:.2f}%)</p>
             </div>
             """,
             unsafe_allow_html=True
