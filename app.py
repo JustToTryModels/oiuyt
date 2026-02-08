@@ -187,7 +187,12 @@ if analyze_button:
             label, bg_color = get_sentiment_info(probs)
             confidence = np.max(probs) * 100
 
-        st.divider()  # ← NOW THICK & DARK ✨
+        st.markdown(
+    """
+    <hr style="border: none; height: 4px; background-color: #333; margin: 20px 0; border-radius: 2px;">
+    """,
+    unsafe_allow_html=True
+)  # ← NOW THICK & DARK ✨
 
         label_text = label.split()[0]
         label_emoji = label.split()[1]
