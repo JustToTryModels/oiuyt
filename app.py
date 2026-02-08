@@ -91,12 +91,17 @@ st.markdown(
         text-align: center;
         font-size: 18px;
     }
+    /* UPDATED CSS FOR TEXT AREA BORDER */
     .stTextArea textarea {
         border-radius: 15px;
-        border: 1px solid #ced4da;
+        border: 2px solid red !important; /* Always Red */
         padding: 10px;
         background-color: #FFFFFF;
         box-shadow: 3px 3px 5px #9E9E9E;
+    }
+    .stTextArea textarea:focus {
+        border: 2px solid red !important; /* Stays Red on Click/Focus */
+        box-shadow: 3px 3px 5px #9E9E9E !important; /* Keep shadow, prevent theme color override */
     }
     .stTextArea textarea::placeholder {
         color: #999;
