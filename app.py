@@ -6,148 +6,132 @@ import time
 
 # --- Set page config MUST be the first Streamlit command ---
 st.set_page_config(
-    page_title="AirPods Sentiment AI",
+    page_title="AirPods Review Sentiment Analyzer",
     page_icon="🎧",
     layout="centered",
     initial_sidebar_state="expanded",
 )
 
 # -----------------------------------------------------------------------------
-# MODEL LOADING (Logic Preserved)
+# CUSTOM CSS & THEME
 # -----------------------------------------------------------------------------
-# Your Hugging Face Repo ID
-MODEL_REPO = "IamPradeep/Apple-Airpods-Sentiment-Analysis-ALBERT-base-v2"
-
-@st.cache_resource
-def load_model():
-    try:
-        # Load directly from Hugging Face Hub
-        tokenizer = AlbertTokenizerFast.from_pretrained(MODEL_REPO)
-        model = AutoModelForSequenceClassification.from_pretrained(MODEL_REPO)
-        return tokenizer, model
-    except Exception as e:
-        st.error(f"Error loading model from Hugging Face: {e}")
-        return None, None
-
-# Load the model
-tokenizer, model = load_model()
-
-# -----------------------------------------------------------------------------
-# HELPER FUNCTIONS (Logic Preserved)
-# -----------------------------------------------------------------------------
-
-def predict_sentiment(text):
-    # Prepare input
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
-    # Inference
-    with torch.no_grad():
-        outputs = model(**inputs)
-    # Probabilities
-    probs = torch.nn.functional.softmax(outputs.logits, dim=1)
-    return probs.detach().numpy()[0]
-
-def get_sentiment_info(probs):
-    # Labels corresponding to model output: 0->Negative, 1->Neutral, 2->Positive
-    labels = ["Negative 😡", "Neutral 😐", "Positive 😊"]
-    
-    # Original reference colors
-    colors = ["#F5C6CB", "#FFE8A1", "#C3E6CB"] 
-    
-    max_index = np.argmax(probs)
-    return labels[max_index], colors[max_index]
-
-# -----------------------------------------------------------------------------
-# UI & CSS ENHANCEMENTS
-# -----------------------------------------------------------------------------
-
 st.markdown(
     """
     <style>
-    /* Import Fonts */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@700&display=swap');
+    /* Import Modern Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
-    /* General App Styling */
-    .stApp {
-        background-color: #FAFAFA;
-        font-family: 'Inter', sans-serif;
-    }
-
-    /* Titles and Headers */
-    h1, h2, h3 {
+    /* Global Theme */
+    .main {
+        background-color: #f8f9fa; /* Soft light gray background */
         font-family: 'Poppins', sans-serif;
-        color: #1D1D1F;
+        color: #333;
     }
     
-    /* Custom Card Container */
-    .css-card {
-        background-color: white;
+    /* Container Styling */
+    .stApp {
+        background-color: #f8f9fa;
+    }
+
+    /* Sidebar Styling */
+    .css-1d391kg {
+        background-color: #ffffff;
+        border-right: 1px solid #eaeaea;
+    }
+
+    /* Header Styling */
+    h1 {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        color: #1f2937;
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .subtitle {
+        text-align: center;
+        color: #6b7280;
+        font-size: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Card Component Styling */
+    .card {
+        background-color: #ffffff;
         padding: 2rem;
         border-radius: 20px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        margin-bottom: 20px;
-        border: 1px solid #E5E5E5;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        margin-bottom: 1.5rem;
+        border: 1px solid #f3f4f6;
+    }
+
+    /* Button Styling */
+    .stButton>button {
+        background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); /* Modern Indigo to Purple */
+        color: white !important;
+        border: none;
+        border-radius: 12px;
+        padding: 12px 24px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        width: 100%;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+    .stButton>button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
     }
 
     /* Text Area Styling */
     .stTextArea textarea {
         border-radius: 12px;
-        border: 1px solid #D1D1D6;
+        border: 2px solid #e5e7eb;
         padding: 15px;
-        background-color: #FFFFFF;
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-        font-size: 16px;
+        background-color: #f9fafb;
+        color: #374151;
+        font-family: 'Poppins', sans-serif;
         transition: border-color 0.3s;
     }
     .stTextArea textarea:focus {
-        border-color: #007AFF;
-        box-shadow: 0 0 0 2px rgba(0,122,255,0.2);
+        border-color: #6366f1;
+        background-color: #ffffff;
+        outline: none;
     }
 
-    /* Button Styling */
-    .stButton>button {
-        background: linear-gradient(135deg, #007AFF, #5856D6);
-        color: white !important;
-        border: none;
-        border-radius: 12px;
-        padding: 0.75rem 1.5rem;
-        font-size: 1.1em;
-        font-weight: 600;
-        cursor: pointer;
-        width: 100%;
-        box-shadow: 0 4px 14px rgba(0, 118, 255, 0.39);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    /* Image Gallery Styling */
+    .img-container {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 2rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
-    .stButton>button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0, 118, 255, 0.23);
-    }
-    .stButton>button:active {
-        transform: scale(0.98);
-    }
-
-    /* Prediction Box Styling */
-    .prediction-card {
-        padding: 20px; 
-        border-radius: 20px; 
-        text-align: center;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-        animation: fadeIn 0.8s ease-in-out;
-        border: 2px solid rgba(255,255,255,0.5);
-    }
-
-    /* Image Gallery Hover */
-    img {
+    .img-container img {
         border-radius: 10px;
-        transition: transform 0.3s ease;
+        transition: transform 0.2s;
+        object-fit: contain;
+        background: #fff;
     }
-    img:hover {
+    .img-container img:hover {
         transform: scale(1.05);
+        cursor: pointer;
     }
 
-    /* Animations */
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
+    /* Result Badge */
+    .result-badge {
+        font-size: 1.5rem;
+        font-weight: bold;
+        padding: 10px 20px;
+        border-radius: 50px;
+        display: inline-block;
+        margin-bottom: 10px;
+        color: #374151;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     </style>
     """,
@@ -155,107 +139,161 @@ st.markdown(
 )
 
 # -----------------------------------------------------------------------------
-# SIDEBAR
+# MODEL LOADING (Logic Unchanged)
+# -----------------------------------------------------------------------------
+MODEL_REPO = "IamPradeep/Apple-Airpods-Sentiment-Analysis-ALBERT-base-v2"
+
+@st.cache_resource
+def load_model():
+    try:
+        tokenizer = AlbertTokenizerFast.from_pretrained(MODEL_REPO)
+        model = AutoModelForSequenceClassification.from_pretrained(MODEL_REPO)
+        return tokenizer, model
+    except Exception as e:
+        st.error(f"Error loading model from Hugging Face: {e}")
+        return None, None
+
+tokenizer, model = load_model()
+
+# -----------------------------------------------------------------------------
+# HELPER FUNCTIONS (Logic Unchanged)
+# -----------------------------------------------------------------------------
+
+def predict_sentiment(text):
+    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
+    with torch.no_grad():
+        outputs = model(**inputs)
+    probs = torch.nn.functional.softmax(outputs.logits, dim=1)
+    return probs.detach().numpy()[0]
+
+def get_sentiment_info(probs):
+    # Labels corresponding to model output
+    labels = ["Negative 😡", "Neutral 😐", "Positive 😊"]
+    # Original reference colors preserved (for functional consistency)
+    colors = ["#F5C6CB", "#FFE8A1", "#C3E6CB"] 
+    
+    max_index = np.argmax(probs)
+    return labels[max_index], colors[max_index]
+
+# -----------------------------------------------------------------------------
+# SIDEBAR CONTENT
 # -----------------------------------------------------------------------------
 with st.sidebar:
-    st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Apple_logo_grey.svg/172px-Apple_logo_grey.svg.png", width=50)
-    st.title("About App")
-    st.markdown("""
-    This application uses a fine-tuned **ALBERT** model to analyze customer reviews for Apple AirPods.
-    
-    **How to use:**
-    1. Paste a review in the text box.
-    2. Click **Analyze Sentiment**.
-    3. View the classification and confidence score.
-    """)
-    
-    st.divider()
-    st.caption(f"Model: `{MODEL_REPO}`")
-    st.caption("v1.0.0 | Enhanced UI")
+    st.markdown("### ℹ️ About")
+    st.info(
+        """
+        This app uses a fine-tuned **ALBERT** model to analyze the sentiment of Apple AirPods reviews.
+        
+        **Model:** `Apple-Airpods-Sentiment-Analysis-ALBERT-base-v2`
+        """
+    )
+    st.markdown("---")
+    st.markdown("### 🏷️ Labels")
+    st.markdown("- 😡 **Negative**")
+    st.markdown("- 😐 **Neutral**")
+    st.markdown("- 😊 **Positive**")
+    st.markdown("---")
+    st.markdown("<small>Built with ❤️ using Streamlit & Hugging Face</small>", unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# MAIN LAYOUT
+# MAIN APP LAYOUT
 # -----------------------------------------------------------------------------
 
-# --- Hero Section ---
-st.markdown("<h1 style='text-align: center; margin-bottom: 0px;'>🎧 AirPods Intelligence</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #666; font-size: 1.1em;'>Advanced Sentiment Analysis for Customer Reviews</p>", unsafe_allow_html=True)
+# --- Header Section ---
+st.markdown('<h1>AirPods Review Analysis</h1>', unsafe_allow_html=True)
+st.markdown('<p class="subtitle">Enter a review below to detect sentiment instantly</p>', unsafe_allow_html=True)
 
-st.write("") # Spacer
+# --- Image Gallery (Wrapped in HTML for cleaner styling) ---
+image_urls = [
+    "https://i5.walmartimages.com/seo/Apple-AirPods-with-Charging-Case-2nd-Generation_8540ab4f-8062-48d0-9133-323a99ed921d.fb43fa09a0faef3f9495feece1397f8d.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
+    "https://i5.walmartimages.com/asr/b6247579-386a-4bda-99aa-01e44801bc33.49db04f5e5b8d7f329c6580455e2e010.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
+    "https://i5.walmartimages.com/asr/0f803868-d25f-4891-b0c8-e27a514ede02.f22c42c1ea17cd4d2b30fdfc89a8797c.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
+    "https://i5.walmartimages.com/asr/df1b081f-4fa9-4ea5-87f8-413b9cad7a6e.f580d742da0a58bc25dadd30512adf72.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
+    "https://i5.walmartimages.com/asr/2830c8d7-292d-4b99-b92f-239b15ff1062.ce77d20b2f20a569bfd656d05ca89f7c.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF"
+]
 
-# --- Product Gallery (Containerized) ---
-with st.expander("📸 View Product Gallery", expanded=True):
-    image_urls = [
-        "https://i5.walmartimages.com/seo/Apple-AirPods-with-Charging-Case-2nd-Generation_8540ab4f-8062-48d0-9133-323a99ed921d.fb43fa09a0faef3f9495feece1397f8d.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
-        "https://i5.walmartimages.com/asr/b6247579-386a-4bda-99aa-01e44801bc33.49db04f5e5b8d7f329c6580455e2e010.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
-        "https://i5.walmartimages.com/asr/0f803868-d25f-4891-b0c8-e27a514ede02.f22c42c1ea17cd4d2b30fdfc89a8797c.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
-        "https://i5.walmartimages.com/asr/df1b081f-4fa9-4ea5-87f8-413b9cad7a6e.f580d742da0a58bc25dadd30512adf72.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
-        "https://i5.walmartimages.com/asr/2830c8d7-292d-4b99-b92f-239b15ff1062.ce77d20b2f20a569bfd656d05ca89f7c.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF"
-    ]
-    cols = st.columns(5)
-    for i, url in enumerate(image_urls):
-        with cols[i]:
-            st.image(url, use_container_width=True)
-
-st.write("") # Spacer
-
-# --- Main Input Card ---
-st.markdown('<div class="css-card">', unsafe_allow_html=True)
-st.subheader("💬 Review Input")
-user_input = st.text_area("Paste your review below:", height=150, placeholder="e.g., The sound quality is amazing, but the battery life could be better...")
-
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
-    analyze_btn = st.button("🔍 Analyze Sentiment")
+# Using st.columns for the images to ensure responsive layout
+st.markdown('<div class="img-container">', unsafe_allow_html=True)
+cols = st.columns(5)
+for i, url in enumerate(image_urls):
+    with cols[i]:
+        st.image(url, width=110)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# -----------------------------------------------------------------------------
-# LOGIC & RESULTS
-# -----------------------------------------------------------------------------
+# --- Input/Output Layout (2 Columns) ---
+col_input, col_output = st.columns([1, 1])
 
-if analyze_btn: 
-    if not user_input.strip():
-        st.warning("⚠️ Please enter a review to analyze.")
-    elif model is None:
-        st.error("Model failed to load. Please check the repo ID.")
+with col_input:
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown("#### 📝 Review Input")
+    user_input = st.text_area("Type or paste the review here...", height=200, label_visibility="collapsed")
+    analyze_btn = st.button("🔍 Analyze Sentiment", use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    if not user_input.strip() and analyze_btn:
+        st.warning("Please enter text to analyze.")
+
+with col_output:
+    # Placeholder for results to maintain layout consistency
+    result_container = st.container()
+    
+    if analyze_btn and user_input.strip() and model:
+        with result_container:
+            with st.spinner('Processing...'):
+                time.sleep(0.5) # Simulate processing time
+                
+                # Perform Prediction
+                probs = predict_sentiment(user_input)
+                label, bg_color = get_sentiment_info(probs)
+                confidence = np.max(probs) * 100
+
+            # --- Result Display ---
+            st.markdown('<div class="card">', unsafe_allow_html=True)
+            st.markdown("#### 📊 Analysis Result")
+            
+            # Center the main result
+            st.markdown(
+                f"""
+                <div style="text-align: center; margin: 20px 0;">
+                    <div class="result-badge" style="background-color: {bg_color};">
+                        {label}
+                    </div>
+                    <h2 style="margin: 10px 0 0 0; color: #374151;">{confidence:.2f}%</h2>
+                    <small style="color: #6b7280;">Confidence Score</small>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+            
+            # Detailed Breakdown (Interactive)
+            with st.expander("See probability breakdown"):
+                # Create progress bars for each sentiment
+                labels_list = ["Negative", "Neutral", "Positive"]
+                color_map = {"Negative": "#ef4444", "Neutral": "#f59e0b", "Positive": "#10b981"}
+                
+                for i, l_name in enumerate(labels_list):
+                    p_score = probs[i] * 100
+                    st.markdown(
+                        f"""
+                        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                            <span style="width: 80px; font-size: 0.9em;">{l_name}</span>
+                            <div style="flex-grow: 1; background: #e5e7eb; border-radius: 4px; height: 10px; margin: 0 10px; overflow: hidden;">
+                                <div style="width: {p_score}%; background: {color_map[l_name]}; height: 100%;"></div>
+                            </div>
+                            <span style="width: 40px; font-size: 0.8em; text-align: right;">{p_score:.1f}%</span>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+            
+            st.markdown('</div>', unsafe_allow_html=True)
+
+    elif analyze_btn and model is None:
+         st.error("Model failed to load. Please check the repo ID.")
     else:
-        with st.spinner('Running ALBERT Model...'): 
-            time.sleep(0.5) # Simulate processing time
-            
-            # Predict
-            probs = predict_sentiment(user_input)
-            label, bg_color = get_sentiment_info(probs)
-            confidence = np.max(probs)
-            confidence_pct = confidence * 100
-
-        # --- Output Section ---
-        st.markdown(f"### 📊 Analysis Results")
-        
-        # Primary Result Card
-        st.markdown(
-            f"""
-            <div style="background-color:{bg_color};" class="prediction-card">
-                <h2 style="margin:0; color:#333;">{label}</h2>
-                <p style="margin-top: 10px; font-size: 18px; color:#555;">Confidence Score: <b>{confidence_pct:.2f}%</b></p>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-        
-        st.write("")
-        
-        # Visual Progress Bar for Confidence
-        st.progress(float(confidence))
-
-        # Advanced Details (Expander for interactivity)
-        with st.expander("🔬 View Technical Details"):
-            st.info("Raw probability distribution from the ALBERT model:")
-            
-            # Creating a clean display for all probabilities
-            c1, c2, c3 = st.columns(3)
-            with c1:
-                st.metric(label="Negative", value=f"{probs[0]*100:.1f}%")
-            with c2:
-                st.metric(label="Neutral", value=f"{probs[1]*100:.1f}%")
-            with c3:
-                st.metric(label="Positive", value=f"{probs[2]*100:.1f}%")
+        # Empty State for the right column
+        with result_container:
+            st.markdown('<div class="card" style="text-align: center; color: #9ca3af; padding: 3rem 1rem;">', unsafe_allow_html=True)
+            st.markdown("#### 🤖 Waiting for Input")
+            st.markdown("Enter a review and click Analyze to see results here.")
+            st.markdown('</div>', unsafe_allow_html=True)
