@@ -180,6 +180,8 @@ Try the live sentiment analysis app here:
 
 </div>
 
+<br>
+
 > Enter any Apple AirPods review and get an instant sentiment prediction powered by fine-tuned ALBERT!
 
 <br>
