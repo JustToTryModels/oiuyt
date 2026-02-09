@@ -113,7 +113,6 @@ This project analyzes customer sentiment for the **Apple AirPods with Charging C
 
 <br>
 
-<div align="center">
 
 ### What's Included
 
@@ -121,8 +120,6 @@ This project analyzes customer sentiment for the **Apple AirPods with Charging C
 - Charging Case with Lightning Connector
 - Lightning to USB-A Cable
 - Documentation
-
-</div>
 
 <br>
 
