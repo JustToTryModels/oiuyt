@@ -96,65 +96,6 @@ st.markdown(
         font-size: 18px;
     }
 
-    /* ========== KILL EVERY DEFAULT WRAPPER ========== */
-
-    /* Remove label "Enter your AirPods review here" bottom gap if needed */
-    .stTextArea label {
-        font-weight: 600;
-    }
-
-    /* Outermost Streamlit wrapper */
-    .stTextArea > div {
-        border: none !important;
-        background: transparent !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-    }
-
-    /* BaseWeb textarea wrapper — THIS is the culprit with the 4-corner border */
-    .stTextArea [data-baseweb="textarea"] {
-        border: none !important;
-        background: transparent !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        padding: 0 !important;
-    }
-
-    /* BaseWeb inner base-input container */
-    .stTextArea [data-baseweb="base-input"] {
-        border: none !important;
-        background: transparent !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        padding: 0 !important;
-    }
-
-    /* Remove the focused / active / hovered outlines on wrappers */
-    .stTextArea [data-baseweb="textarea"]:focus-within,
-    .stTextArea [data-baseweb="textarea"]:hover,
-    .stTextArea [data-baseweb="textarea"]:active,
-    .stTextArea [data-baseweb="base-input"]:focus-within,
-    .stTextArea [data-baseweb="base-input"]:hover,
-    .stTextArea [data-baseweb="base-input"]:active {
-        border: none !important;
-        box-shadow: none !important;
-        outline: none !important;
-    }
-
-    /* Nuke any nested divs inside that still carry borders */
-    .stTextArea > div > div {
-        border: none !important;
-        background: transparent !important;
-        box-shadow: none !important;
-    }
-
-    .stTextArea > div > div > div {
-        border: none !important;
-        background: transparent !important;
-        box-shadow: none !important;
-    }
-
-    /* ========== STYLE ONLY THE ACTUAL TEXTAREA ========== */
     .stTextArea textarea {
         border-radius: 40px !important;
         border: 2px solid red !important;
@@ -164,22 +105,6 @@ st.markdown(
         outline: none !important;
     }
 
-    .stTextArea textarea:focus {
-        border: 2px solid red !important;
-        box-shadow: 3px 3px 5px #9E9E9E !important;
-        outline: none !important;
-    }
-
-    .stTextArea textarea:hover {
-        border: 2px solid red !important;
-    }
-
-    .stTextArea textarea::placeholder {
-        color: #999;
-        font-style: italic;
-    }
-
-    /* ========== AIRPODS IMAGE SHADOW CARDS ========== */
     .airpod-card {
         background-color: #FFFFFF;
         border-radius: 15px;
@@ -207,19 +132,17 @@ st.markdown(
 
 # --- App Title ---
 st.markdown(
-    """
-    <h1 style="font-size: 45px; text-align: center;">Apple AirPods Sentiment Analysis</h1>
-    """,
+    "<h1>Apple AirPods Sentiment Analysis</h1>",
     unsafe_allow_html=True
 )
 
-# --- AirPods Image Row with Shadow Cards ---
+# --- AirPods Image Row ---
 image_urls = [
-    "https://i5.walmartimages.com/seo/Apple-AirPods-with-Charging-Case-2nd-Generation_8540ab4f-8062-48d0-9133-323a99ed921d.fb43fa09a0faef3f9495feece1397f8d.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
-    "https://i5.walmartimages.com/asr/b6247579-386a-4bda-99aa-01e44801bc33.49db04f5e5b8d7f329c6580455e2e010.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
-    "https://i5.walmartimages.com/asr/0f803868-d25f-4891-b0c8-e27a514ede02.f22c42c1ea17cd4d2b30fdfc89a8797c.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
-    "https://i5.walmartimages.com/asr/df1b081f-4fa9-4ea5-87f8-413b9cad7a6e.f580d742da0a58bc25dadd30512adf72.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
-    "https://i5.walmartimages.com/asr/2830c8d7-292d-4b99-b92f-239b15ff1062.ce77d20b2f20a569bfd656d05ca89f7c.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF"
+    "https://i5.walmartimages.com/seo/Apple-AirPods-with-Charging-Case-2nd-Generation_8540ab4f-8062-48d0-9133-323a99ed921d.fb43fa09a0faef3f9495feece1397f8d.jpeg",
+    "https://i5.walmartimages.com/asr/b6247579-386a-4bda-99aa-01e44801bc33.jpeg",
+    "https://i5.walmartimages.com/asr/0f803868-d25f-4891-b0c8-e27a514ede02.jpeg",
+    "https://i5.walmartimages.com/asr/df1b081f-4fa9-4ea5-87f8-413b9cad7a6e.jpeg",
+    "https://i5.walmartimages.com/asr/2830c8d7-292d-4b99-b92f-239b15ff1062.jpeg"
 ]
 
 cols = st.columns(5)
@@ -236,12 +159,12 @@ for i, url in enumerate(image_urls):
 
 st.write("")
 
-# --- User Input Text Area ---
+# --- User Input ---
 user_input = st.text_area("Enter your AirPods review here", height=200)
 
 st.write("")
 
-# --- Analyze Sentiment Button ---
+# --- Analyze Button ---
 col1, col2, col3 = st.columns([1, 1, 1])
 with col2:
     analyze_button = st.button("🔍 Analyze Sentiment")
@@ -263,13 +186,13 @@ if analyze_button:
         label_text = label.split()[0]
         label_emoji = label.split()[1]
 
+        # ✅ FIXED SPACING HERE
         st.markdown(
-            f"""
-            <div style="background-color:{bg_color}; padding: 10px; border-radius: 25px; text-align: center;" class="prediction-box">
-                <div style="font-size: 3em; margin-bottom: 10px;">{label_emoji}</div>
-                <h3><strong>Sentiment</strong>: {label_text}</h3>
-                <p style="font-size: 16px;">(Confidence: {confidence:.2f}%)</p>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+    f"""
+    <div style="background-color:{bg_color}; padding: 12px 15px; border-radius: 25px; text-align: center;" class="prediction-box">
+        <span style="font-size: 2.5em; vertical-align: middle;">{label_emoji}</span>
+        <span style="font-size: 1.3em; font-weight: bold; vertical-align: middle; margin-left: 10px;">Sentiment: {label_text}</span>
+        <p style="font-size: 14px; margin: 5px 0 0 0; color: #555;">(Confidence: {confidence:.2f}%)</p>
+    </div>
+    """,
+    unsafe_allow_html=True)
