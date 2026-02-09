@@ -265,10 +265,11 @@ if analyze_button:
 
         st.markdown(
     f"""
-    <div style="background-color:{bg_color}; padding: 12px 15px; border-radius: 25px; text-align: center;" class="prediction-box">
-        <span style="font-size: 2.5em; vertical-align: middle;">{label_emoji}</span>
-        <span style="font-size: 1.3em; font-weight: bold; vertical-align: middle; margin-left: 10px;">Sentiment: {label_text}</span>
-        <p style="font-size: 14px; margin: 5px 0 0 0; color: #555;">(Confidence: {confidence:.2f}%)</p>
+    <div style="background-color:{bg_color}; padding: 15px; border-radius: 25px; text-align: center;" class="prediction-box">
+        <div style="font-size: 3em; margin-bottom: 0; line-height: 1;">{label_emoji}</div>
+        <h3 style="margin-top: 5px; margin-bottom: 5px;"><strong>Sentiment</strong>: {label_text}</h3>
+        <p style="font-size: 16px; margin: 0;">(Confidence: {confidence:.2f}%)</p>
     </div>
     """,
-    unsafe_allow_html=True)
+    unsafe_allow_html=True
+)
