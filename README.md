@@ -78,9 +78,13 @@ This project analyzes customer sentiment for the **Apple AirPods with Charging C
 
 **Apple AirPods with Charging Case (2nd Generation)** deliver an incredible wireless headphone experience with the power of the Apple H1 headphone chip. Simply take them out and they're ready to use with all your Apple devices. Put them in your ears and they connect immediately, immersing you in rich, high-quality sound.
 
+</div>
+
 > **Note:** This model contains the standard Lightning charging case, NOT the wireless charging case.
 
 <br>
+
+<div align="center">
 
 ### Key Specifications
 
