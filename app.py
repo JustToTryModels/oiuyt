@@ -96,37 +96,14 @@ st.markdown(
         font-size: 18px;
     }
 
-    /* ========== AIRPODS IMAGE CARDS WITH SHADOW ========== */
-    .airpod-card {
-        background-color: #FFFFFF;
-        border-radius: 15px;
-        padding: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        margin: 5px auto;
-    }
-
-    .airpod-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
-    }
-
-    .airpod-card img {
-        width: 90px;
-        height: 90px;
-        object-fit: contain;
-        border-radius: 10px;
-    }
-
     /* ========== KILL EVERY DEFAULT WRAPPER ========== */
 
+    /* Remove label "Enter your AirPods review here" bottom gap if needed */
     .stTextArea label {
         font-weight: 600;
     }
 
+    /* Outermost Streamlit wrapper */
     .stTextArea > div {
         border: none !important;
         background: transparent !important;
@@ -134,6 +111,7 @@ st.markdown(
         padding: 0 !important;
     }
 
+    /* BaseWeb textarea wrapper — THIS is the culprit with the 4-corner border */
     .stTextArea [data-baseweb="textarea"] {
         border: none !important;
         background: transparent !important;
@@ -142,6 +120,7 @@ st.markdown(
         padding: 0 !important;
     }
 
+    /* BaseWeb inner base-input container */
     .stTextArea [data-baseweb="base-input"] {
         border: none !important;
         background: transparent !important;
@@ -150,6 +129,7 @@ st.markdown(
         padding: 0 !important;
     }
 
+    /* Remove the focused / active / hovered outlines on wrappers */
     .stTextArea [data-baseweb="textarea"]:focus-within,
     .stTextArea [data-baseweb="textarea"]:hover,
     .stTextArea [data-baseweb="textarea"]:active,
@@ -161,6 +141,7 @@ st.markdown(
         outline: none !important;
     }
 
+    /* Nuke any nested divs inside that still carry borders */
     .stTextArea > div > div {
         border: none !important;
         background: transparent !important;
@@ -197,6 +178,28 @@ st.markdown(
         color: #999;
         font-style: italic;
     }
+
+    /* ========== AIRPODS IMAGE SHADOW CARDS ========== */
+    .airpod-card {
+        background-color: #FFFFFF;
+        border-radius: 15px;
+        padding: 10px;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .airpod-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .airpod-card img {
+        border-radius: 10px;
+        width: 100px;
+        height: 100px;
+        object-fit: contain;
+    }
     </style>
     """,
     unsafe_allow_html=True
@@ -219,17 +222,17 @@ image_urls = [
     "https://i5.walmartimages.com/asr/2830c8d7-292d-4b99-b92f-239b15ff1062.ce77d20b2f20a569bfd656d05ca89f7c.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF"
 ]
 
-# Build the HTML for the image row with shadow cards
-image_cards_html = '<div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">'
-for url in image_urls:
-    image_cards_html += f'''
-        <div class="airpod-card">
-            <img src="{url}" alt="AirPods">
-        </div>
-    '''
-image_cards_html += '</div>'
-
-st.markdown(image_cards_html, unsafe_allow_html=True)
+cols = st.columns(5)
+for i, url in enumerate(image_urls):
+    with cols[i]:
+        st.markdown(
+            f"""
+            <div class="airpod-card">
+                <img src="{url}" alt="AirPods {i+1}">
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
 st.write("")
 
