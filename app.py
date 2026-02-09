@@ -178,6 +178,28 @@ st.markdown(
         color: #999;
         font-style: italic;
     }
+
+    /* ========== AIRPODS IMAGE SHADOW CARDS ========== */
+    .airpod-card {
+        background-color: #FFFFFF;
+        border-radius: 15px;
+        padding: 10px;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .airpod-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .airpod-card img {
+        border-radius: 10px;
+        width: 100px;
+        height: 100px;
+        object-fit: contain;
+    }
     </style>
     """,
     unsafe_allow_html=True
@@ -191,7 +213,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- AirPods Image Row ---
+# --- AirPods Image Row with Shadow Cards ---
 image_urls = [
     "https://i5.walmartimages.com/seo/Apple-AirPods-with-Charging-Case-2nd-Generation_8540ab4f-8062-48d0-9133-323a99ed921d.fb43fa09a0faef3f9495feece1397f8d.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
     "https://i5.walmartimages.com/asr/b6247579-386a-4bda-99aa-01e44801bc33.49db04f5e5b8d7f329c6580455e2e010.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
@@ -203,7 +225,14 @@ image_urls = [
 cols = st.columns(5)
 for i, url in enumerate(image_urls):
     with cols[i]:
-        st.image(url, width=100)
+        st.markdown(
+            f"""
+            <div class="airpod-card">
+                <img src="{url}" alt="AirPods {i+1}">
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
 st.write("")
 
@@ -235,12 +264,12 @@ if analyze_button:
         label_emoji = label.split()[1]
 
         st.markdown(
-            f"""
-            <div style="background-color:{bg_color}; padding: 10px; border-radius: 25px; text-align: center;" class="prediction-box">
-                <div style="font-size: 3em; margin-bottom: 10px;">{label_emoji}</div>
-                <h3><strong>Sentiment</strong>: {label_text}</h3>
-                <p style="font-size: 16px;">(Confidence: {confidence:.2f}%)</p>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+    f"""
+    <div style="background-color:{bg_color}; padding: 15px; border-radius: 25px; text-align: center;" class="prediction-box">
+        <div style="font-size: 3em; margin-bottom: 0; line-height: 1;">{label_emoji}</div>
+        <h3 style="margin-top: 5px; margin-bottom: 5px;"><strong>Sentiment</strong>: {label_text}</h3>
+        <p style="font-size: 16px; margin: 0;">(Confidence: {confidence:.2f}%)</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
