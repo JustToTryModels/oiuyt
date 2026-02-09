@@ -215,11 +215,11 @@ st.markdown(
 
 # --- AirPods Image Row with Shadow Cards ---
 image_urls = [
-    "https://i5.walmartimages.com/seo/Apple-AirPods-with-Charging-Case-2nd-Generation_8540ab4f-8062-48d0-9133-323a99ed921d.fb43fa09a0faef3f9495feece1397f8d.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
-    "https://i5.walmartimages.com/asr/b6247579-386a-4bda-99aa-01e44801bc33.49db04f5e5b8d7f329c6580455e2e010.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
-    "https://i5.walmartimages.com/asr/0f803868-d25f-4891-b0c8-e27a514ede02.f22c42c1ea17cd4d2b30fdfc89a8797c.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
-    "https://i5.walmartimages.com/asr/df1b081f-4fa9-4ea5-87f8-413b9cad7a6e.f580d742da0a58bc25dadd30512adf72.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
-    "https://i5.walmartimages.com/asr/2830c8d7-292d-4b99-b92f-239b15ff1062.ce77d20b2f20a569bfd656d05ca89f7c.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF"
+    "https://raw.githubusercontent.com/JustToTryModels/oiuyt/refs/heads/main/Image-1_Apple-AirPods-with-Charging-Case-2nd-Generation.avif",
+    "https://github.com/JustToTryModels/oiuyt/blob/main/Image-2_Apple-AirPods-with-Charging-Case-2nd-Generation.webp?raw=true",
+    "https://github.com/JustToTryModels/oiuyt/blob/main/Image-3_Apple-AirPods-with-Charging-Case-2nd-Generation.webp?raw=true",
+    "https://github.com/JustToTryModels/oiuyt/blob/main/Image-4_Apple-AirPods-with-Charging-Case-2nd-Generation.webp?raw=true",
+    "https://github.com/JustToTryModels/oiuyt/blob/main/Image-5_Apple-AirPods-with-Charging-Case-2nd-Generation.webp?raw=true"
 ]
 
 cols = st.columns(5)
