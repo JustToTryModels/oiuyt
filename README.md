@@ -89,9 +89,9 @@ Try the live sentiment analysis app here:
 
 <table>
 <tr>
-<td align="center"><img src="https://github.com/JustToTryModels/oiuyt/blob/main/Positive_Review.png?raw=true" alt="Positive Sentiment Example" width="380" /></td>
-<td align="center"><img src="https://github.com/JustToTryModels/oiuyt/blob/main/Negative_Review.png?raw=true" alt="Negative Sentiment Example" width="380" /></td>
-<td align="center"><img src="https://github.com/JustToTryModels/oiuyt/blob/main/Neutral_Review.png?raw=true" alt="Neutral Sentiment Example" width="380" /></td>
+<td align="center"><img src="https://github.com/JustToTryModels/oiuyt/blob/main/Screenshot%202026-02-09%20100355.png?raw=true" alt="Positive Sentiment Example" width="380" /></td>
+<td align="center"><img src="https://github.com/JustToTryModels/oiuyt/blob/main/Screenshot%202026-02-09%20100112.png?raw=true" alt="Negative Sentiment Example" width="380" /></td>
+<td align="center"><img src="https://github.com/JustToTryModels/oiuyt/blob/main/Screenshot%202026-02-09%20100315.png?raw=true" alt="Neutral Sentiment Example" width="380" /></td>
 </tr>
 <tr>
 <td align="center"><b>😊 Positive Sentiment</b></td>
