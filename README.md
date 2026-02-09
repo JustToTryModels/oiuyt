@@ -96,20 +96,24 @@ This project analyzes customer sentiment for the **Apple AirPods with Charging C
 | **Weight** | 1.34 oz |
 | **Price** | ~~$229.00~~ **Now $89.00** (You save $140.00) |
 
+</div>
+
 <br>
 
 ### Key Features
 
-- ✅ **Automatically on, automatically connected** — Seamless pairing with all Apple devices
-- 🎤 **Quick access to Siri** — Just say "Hey Siri" for hands-free control
-- 🔋 **All-day battery life** — Multiple charges from the Charging Case
-- ⚡ **Fast charging** — 15 minutes in the case = 3 hours of listening time
-- 🎧 **Rich, high-quality audio** — Powered by Apple H1 chip
-- 🔄 **Seamless device switching** — Move between iPhone, iPad, Mac, and Apple Watch
-- 📞 **Crystal-clear calls** — Dual beamforming microphones filter out background noise
-- 👆 **Double-tap control** — Play, skip, or answer calls with a simple tap
+- **Automatically on, automatically connected** — Seamless pairing with all Apple devices
+- **Quick access to Siri** — Just say "Hey Siri" for hands-free control
+- **All-day battery life** — Multiple charges from the Charging Case
+- **Fast charging** — 15 minutes in the case = 3 hours of listening time
+- **Rich, high-quality audio** — Powered by Apple H1 chip
+- **Seamless device switching** — Move between iPhone, iPad, Mac, and Apple Watch
+- **Crystal-clear calls** — Dual beamforming microphones filter out background noise
+- **Double-tap control** — Play, skip, or answer calls with a simple tap
 
 <br>
+
+<div align="center">
 
 ### What's Included
 
