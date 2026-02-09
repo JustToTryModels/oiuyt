@@ -19,6 +19,7 @@ An end-to-end NLP project that collects **16,000+ customer reviews** of Apple Ai
 ## 📋 Table of Contents
 
 - [What is Sentiment Analysis?](#-what-is-sentiment-analysis)
+- [About the Product](#-about-the-product)
 - [Project Overview](#-project-overview)
 - [Demo](#-demo)
 - [Project Structure](#-project-structure)
@@ -46,6 +47,78 @@ An end-to-end NLP project that collects **16,000+ customer reviews** of Apple Ai
 - 😠 **Negative** — Expresses dissatisfaction, frustration, or disappointment
 
 This project applies sentiment analysis to real-world **product reviews**, enabling businesses to understand customer perception at scale, identify product strengths and weaknesses, and make data-driven decisions to improve customer satisfaction.
+
+<br>
+
+---
+
+## 🎧 About the Product
+
+<div align="center">
+
+This project analyzes customer sentiment for the **Apple AirPods with Charging Case (2nd Generation)** as sold on Walmart.com.
+
+<br>
+
+### Product Gallery
+
+<table>
+<tr>
+<td align="center"><img src="https://raw.githubusercontent.com/JustToTryModels/oiuyt/refs/heads/main/Image-1_Apple-AirPods-with-Charging-Case-2nd-Generation.avif" alt="AirPods - Main Product" width="180"/></td>
+<td align="center"><img src="https://github.com/JustToTryModels/oiuyt/blob/main/Image-2_Apple-AirPods-with-Charging-Case-2nd-Generation.webp?raw=true" alt="AirPods - Charging Case" width="180"/></td>
+<td align="center"><img src="https://github.com/JustToTryModels/oiuyt/blob/main/Image-3_Apple-AirPods-with-Charging-Case-2nd-Generation.webp?raw=true" alt="AirPods - In Case" width="180"/></td>
+<td align="center"><img src="https://github.com/JustToTryModels/oiuyt/blob/main/Image-4_Apple-AirPods-with-Charging-Case-2nd-Generation.webp?raw=true" alt="AirPods - Detail View" width="180"/></td>
+<td align="center"><img src="https://github.com/JustToTryModels/oiuyt/blob/main/Image-5_Apple-AirPods-with-Charging-Case-2nd-Generation.webp?raw=true" alt="AirPods - Package" width="180"/></td>
+</tr>
+</table>
+
+<br>
+
+### Product Overview
+
+**Apple AirPods with Charging Case (2nd Generation)** deliver an incredible wireless headphone experience with the power of the Apple H1 headphone chip. Simply take them out and they're ready to use with all your Apple devices. Put them in your ears and they connect immediately, immersing you in rich, high-quality sound.
+
+> **Note:** This model contains the standard Lightning charging case, NOT the wireless charging case.
+
+<br>
+
+### Key Specifications
+
+| Specification | Details |
+|---|---|
+| **Model** | Apple AirPods (2nd Generation) |
+| **Chip** | Apple H1 Headphone Chip |
+| **Battery Life** | 5 hours listening time (single charge) |
+| **Connectivity** | Bluetooth / True Wireless |
+| **Charging** | Lightning Connector (Non-Wireless) |
+| **Virtual Assistant** | Siri ("Hey Siri" voice-activated) |
+| **Color** | White |
+| **Weight** | 1.34 oz |
+| **Price** | ~~$229.00~~ **Now $89.00** (You save $140.00) |
+
+<br>
+
+### Key Features
+
+- ✅ **Automatically on, automatically connected** — Seamless pairing with all Apple devices
+- 🎤 **Quick access to Siri** — Just say "Hey Siri" for hands-free control
+- 🔋 **All-day battery life** — Multiple charges from the Charging Case
+- ⚡ **Fast charging** — 15 minutes in the case = 3 hours of listening time
+- 🎧 **Rich, high-quality audio** — Powered by Apple H1 chip
+- 🔄 **Seamless device switching** — Move between iPhone, iPad, Mac, and Apple Watch
+- 📞 **Crystal-clear calls** — Dual beamforming microphones filter out background noise
+- 👆 **Double-tap control** — Play, skip, or answer calls with a simple tap
+
+<br>
+
+### What's Included
+
+- AirPods (2nd Generation)
+- Charging Case with Lightning Connector
+- Lightning to USB-A Cable
+- Documentation
+
+</div>
 
 <br>
 
