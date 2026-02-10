@@ -8,7 +8,7 @@
 [![NLTK](https://img.shields.io/badge/NLTK-NLP-154f3c?style=for-the-badge&logo=python&logoColor=white)](https://www.nltk.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 
-An end-to-end NLP project that collects **16,000+ customer reviews** of Apple AirPods (2nd Generation) from Walmart, performs comprehensive text preprocessing and exploratory data analysis, and benchmarks **two distinct sentiment analysis approaches** — traditional Machine Learning (Logistic Regression, Naive Bayes, Random Forest) and a fine-tuned **ALBERT transformer** — to classify reviews as Positive, Neutral, or Negative with up to **100% accuracy on manual test reviews**.
+An end-to-end NLP project that collects **16,000+ customer reviews** of Apple AirPods (2nd Generation) from Walmart, performs comprehensive text preprocessing and exploratory data analysis, and benchmarks **two distinct sentiment analysis approaches** — traditional Machine Learning (Logistic Regression, Naive Bayes, Random Forest) and a fine-tuned **ALBERT transformer** — to classify reviews as Positive, Neutral, or Negative with up to **96.33% accuracy on 300 manual test reviews**.
 
 </div>
 
