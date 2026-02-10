@@ -1,5 +1,3 @@
-<div align="center">
-
 # 🎧 Sentiment Analysis of Apple AirPods Reviews
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
@@ -8,7 +6,7 @@
 [![NLTK](https://img.shields.io/badge/NLTK-NLP-154f3c?style=for-the-badge&logo=python&logoColor=white)](https://www.nltk.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 
-An end-to-end NLP project that collects **16,000+ customer reviews** of Apple AirPods (2nd Generation) from Walmart, performs comprehensive text preprocessing and exploratory data analysis, and benchmarks **two distinct sentiment analysis approaches** — traditional Machine Learning (Logistic Regression, Naive Bayes, Random Forest) and a fine-tuned **ALBERT transformer** — to classify reviews as Positive, Neutral, or Negative with up to **100% accuracy on manual test reviews**.
+An end-to-end NLP project that collects **16,000+ customer reviews** of Apple AirPods (2nd Generation) from Walmart, performs comprehensive text preprocessing and exploratory data analysis, and benchmarks **two distinct sentiment analysis approaches** — traditional Machine Learning (Logistic Regression, Naive Bayes, Random Forest) and a fine-tuned **ALBERT transformer** — to classify reviews as Positive, Neutral, or Negative with up to **96.33% accuracy on 300 manual test reviews**.
 
 </div>
 
@@ -492,20 +490,39 @@ For the deep learning approach, reviews were labeled using **Meta's Llama 3.2-1B
 
 <br>
 
-### 🏆 Manual Review Evaluation (15 Hand-Crafted Reviews)
+### 🏆 Manual Review Evaluation (300 Hand-Crafted Reviews)
 
-To truly test generalization, all models were evaluated on **15 manually written reviews** (5 positive, 5 neutral, 5 negative):
+To truly test generalization, all models were evaluated on **300 manually written reviews** (100 positive, 100 neutral, 100 negative):
 
 <div align="center">
 
+#### Overall Performance Comparison
+
 | Model | Correct | Total | Accuracy | Macro F1 |
 |:---|:---:|:---:|:---:|:---:|
-| **Fine-Tuned ALBERT** 🏆 | **15** | **15** | **100.00%** | **1.0000** |
-| BoW (N-gram) + LR | 10 | 15 | 66.67% | 0.6551 |
-| CountVectorizer + LR | 9 | 15 | 60.00% | 0.5889 |
-| TF-IDF + LR | 8 | 15 | 53.33% | 0.5004 |
+| **Fine-Tuned ALBERT** 🏆 | **289** | **300** | **96.33%** | **0.9629** |
+| BoW (N-gram) + LR | 199 | 300 | 66.33% | 0.6267 |
+| CountVectorizer + LR | 190 | 300 | 63.33% | 0.6107 |
+| TF-IDF + LR | 196 | 300 | 65.33% | 0.5933 |
 
 </div>
+
+<br>
+
+<div align="center">
+
+#### Class-Wise Accuracy Breakdown
+
+| Model | Positive Acc (%) | Neutral Acc (%) | Negative Acc (%) |
+|:---|:---:|:---:|:---:|
+| **Fine-Tuned ALBERT** 🏆 | **100.0** | **89.0** | **100.0** |
+| BoW (N-gram) + LR | 86.0 | 21.0 | 92.0 |
+| CountVectorizer + LR | 83.0 | 24.0 | 83.0 |
+| TF-IDF + LR | 97.0 | 12.0 | 87.0 |
+
+</div>
+
+> **Critical Insight:** ML models achieve 83-97% accuracy on positive reviews and 83-92% on negative reviews, but collapse to just **12-24% accuracy on neutral reviews**. ALBERT maintains **89% accuracy on neutral sentiment**, demonstrating superior contextual understanding.
 
 <br>
 
@@ -516,14 +533,16 @@ To truly test generalization, all models were evaluated on **15 manually written
 | Criteria | ML Models (Best: BoW+LR) | Fine-Tuned ALBERT |
 |---|---|---|
 | **Contextual Understanding** | ❌ Bag-of-words; no word order | ✅ Full context via self-attention |
-| **Neutral Detection** | ❌ 40% accuracy on neutral reviews | ✅ 100% on manual, 64% on val set |
-| **Manual Review Accuracy** | 66.67% | **100.00%** |
+| **Neutral Detection** | ❌ 12-24% accuracy on neutral reviews | ✅ **89%** on neutral reviews |
+| **Positive Detection** | ✅ 83-97% | ✅ **100%** |
+| **Negative Detection** | ✅ 83-92% | ✅ **100%** |
+| **Manual Review Accuracy** | 63-66% | **96.33%** |
 | **Preprocessing Required** | Extensive (7-step pipeline) | ✅ Minimal (tokenizer handles it) |
 | **Handles Sarcasm/Nuance** | ❌ Struggles with mixed sentiment | ✅ Better nuance understanding |
 
 </div>
 
-> The fine-tuned ALBERT model correctly classified all 15 manual test reviews, whereas the best ML model struggled with **neutral** and **mixed-sentiment** reviews, misclassifying 5 out of 15.
+> The fine-tuned ALBERT model correctly classified **289 out of 300 manual test reviews**, achieving perfect scores on positive and negative sentiments. In contrast, the best ML model (BoW + LR) correctly classified only **199 reviews**, with catastrophic failure on neutral sentiment (only 21 out of 100 correct).
 
 <br>
 
