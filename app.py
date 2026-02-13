@@ -33,8 +33,14 @@ tokenizer, model = load_model()
 # HELPER FUNCTIONS
 # -----------------------------------------------------------------------------
 
+MAX_TOKENS = 512
+
+def count_tokens(text):
+    tokens = tokenizer(text, truncation=False, add_special_tokens=True)
+    return len(tokens["input_ids"])
+
 def predict_sentiment(text):
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
+    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=MAX_TOKENS)
     with torch.no_grad():
         outputs = model(**inputs)
     probs = torch.nn.functional.softmax(outputs.logits, dim=1)
@@ -215,11 +221,11 @@ st.markdown(
 
 # --- AirPods Image Row with Shadow Cards ---
 image_urls = [
-    "https://raw.githubusercontent.com/JustToTryModels/oiuyt/refs/heads/main/Image-1_Apple-AirPods-with-Charging-Case-2nd-Generation.avif",
-    "https://github.com/JustToTryModels/oiuyt/blob/main/Image-2_Apple-AirPods-with-Charging-Case-2nd-Generation.webp?raw=true",
-    "https://github.com/JustToTryModels/oiuyt/blob/main/Image-3_Apple-AirPods-with-Charging-Case-2nd-Generation.webp?raw=true",
-    "https://github.com/JustToTryModels/oiuyt/blob/main/Image-4_Apple-AirPods-with-Charging-Case-2nd-Generation.webp?raw=true",
-    "https://github.com/JustToTryModels/oiuyt/blob/main/Image-5_Apple-AirPods-with-Charging-Case-2nd-Generation.webp?raw=true"
+    "https://raw.githubusercontent.com/MarpakaPradeepSai/Project-Sentiment-Analysis/refs/heads/main/Data/Images%20%26%20GIFs/Image-1_Apple-AirPods-with-Charging-Case-2nd-Generation.avif ",
+    "https://github.com/MarpakaPradeepSai/Project-Sentiment-Analysis/blob/main/Data/Images%20&%20GIFs/Image-2_Apple-AirPods-with-Charging-Case-2nd-Generation.webp?raw=true",
+    "https://github.com/MarpakaPradeepSai/Project-Sentiment-Analysis/blob/main/Data/Images%20&%20GIFs/Image-3_Apple-AirPods-with-Charging-Case-2nd-Generation.webp?raw=true",
+    "https://github.com/MarpakaPradeepSai/Project-Sentiment-Analysis/blob/main/Data/Images%20&%20GIFs/Image-4_Apple-AirPods-with-Charging-Case-2nd-Generation.webp?raw=true",
+    "https://github.com/MarpakaPradeepSai/Project-Sentiment-Analysis/blob/main/Data/Images%20&%20GIFs/Image-5_Apple-AirPods-with-Charging-Case-2nd-Generation.webp?raw=true"
 ]
 
 cols = st.columns(5)
@@ -249,27 +255,34 @@ with col2:
 if analyze_button:
     if not user_input.strip():
         st.error("⚠️ Please enter a review to analyze.")
-    elif model is None:
+    elif model is None or tokenizer is None:
         st.error("Model failed to load. Please check the repo ID.")
     else:
-        with st.spinner("Analyzing sentiment..."):
-            time.sleep(0.5)
-            probs = predict_sentiment(user_input)
-            label, bg_color = get_sentiment_info(probs)
-            confidence = np.max(probs) * 100
+        num_tokens = count_tokens(user_input)
+        if num_tokens > MAX_TOKENS:
+            st.error(
+                f"⚠️ Your review is too long! It has **{num_tokens} tokens**, but the model supports a maximum of **{MAX_TOKENS} tokens**. "
+                f"Please try a shorter review."
+            )
+        else:
+            with st.spinner("Analyzing sentiment..."):
+                time.sleep(0.5)
+                probs = predict_sentiment(user_input)
+                label, bg_color = get_sentiment_info(probs)
+                confidence = np.max(probs) * 100
 
-        st.divider()
+            st.divider()
 
-        label_text = label.split()[0]
-        label_emoji = label.split()[1]
+            label_text = label.split()[0]
+            label_emoji = label.split()[1]
 
-        st.markdown(
-    f"""
-    <div style="background-color:{bg_color}; padding: 15px; border-radius: 25px; text-align: center;" class="prediction-box">
-        <div style="font-size: 3em; margin-bottom: 0; line-height: 1;">{label_emoji}</div>
-        <h3 style="margin-top: 5px; margin-bottom: 5px;"><strong>Sentiment</strong>: {label_text}</h3>
-        <p style="font-size: 16px; margin: 0;">(Confidence: {confidence:.2f}%)</p>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+            st.markdown(
+                f"""
+                <div style="background-color:{bg_color}; padding: 15px; border-radius: 25px; text-align: center;" class="prediction-box">
+                    <div style="font-size: 3em; margin-bottom: 0; line-height: 1;">{label_emoji}</div>
+                    <h3 style="margin-top: 5px; margin-bottom: 5px;"><strong>Sentiment</strong>: {label_text}</h3>
+                    <p style="font-size: 16px; margin: 0;">(Confidence: {confidence:.2f}%)</p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
