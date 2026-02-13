@@ -260,7 +260,7 @@ if analyze_button:
     else:
         num_tokens = count_tokens(user_input)
         if num_tokens > MAX_TOKENS:
-            st.error("⚠️ Your review is too long! Please try a shorter review.")
+            st.error("⚠️ Your review is a bit too long for the model to handle. Please try shortening it slightly.")
         else:
             with st.spinner("Analyzing sentiment..."):
                 time.sleep(0.5)
