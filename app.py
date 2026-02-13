@@ -52,6 +52,33 @@ def get_sentiment_info(probs):
     max_index = np.argmax(probs)
     return labels[max_index], colors[max_index]
 
+def display_result(probs):
+    label, bg_color = get_sentiment_info(probs)
+    confidence = np.max(probs) * 100
+    label_text = label.split()[0]
+    label_emoji = label.split()[1]
+    st.divider()
+    st.markdown(
+        f"""
+        <div style="background-color:{bg_color}; padding: 15px; border-radius: 25px; text-align: center;" class="prediction-box">
+            <div style="font-size: 3em; margin-bottom: 0; line-height: 1;">{label_emoji}</div>
+            <h3 style="margin-top: 5px; margin-bottom: 5px;"><strong>Sentiment</strong>: {label_text}</h3>
+            <p style="font-size: 16px; margin: 0;">(Confidence: {confidence:.2f}%)</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+# -----------------------------------------------------------------------------
+# SESSION STATE
+# -----------------------------------------------------------------------------
+if "show_warning" not in st.session_state:
+    st.session_state.show_warning = False
+if "warning_text" not in st.session_state:
+    st.session_state.warning_text = ""
+if "warning_tokens" not in st.session_state:
+    st.session_state.warning_tokens = 0
+
 # -----------------------------------------------------------------------------
 # UI & CSS
 # -----------------------------------------------------------------------------
@@ -104,12 +131,10 @@ st.markdown(
 
     /* ========== KILL EVERY DEFAULT WRAPPER ========== */
 
-    /* Remove label "Enter your AirPods review here" bottom gap if needed */
     .stTextArea label {
         font-weight: 600;
     }
 
-    /* Outermost Streamlit wrapper */
     .stTextArea > div {
         border: none !important;
         background: transparent !important;
@@ -117,7 +142,6 @@ st.markdown(
         padding: 0 !important;
     }
 
-    /* BaseWeb textarea wrapper — THIS is the culprit with the 4-corner border */
     .stTextArea [data-baseweb="textarea"] {
         border: none !important;
         background: transparent !important;
@@ -126,7 +150,6 @@ st.markdown(
         padding: 0 !important;
     }
 
-    /* BaseWeb inner base-input container */
     .stTextArea [data-baseweb="base-input"] {
         border: none !important;
         background: transparent !important;
@@ -135,7 +158,6 @@ st.markdown(
         padding: 0 !important;
     }
 
-    /* Remove the focused / active / hovered outlines on wrappers */
     .stTextArea [data-baseweb="textarea"]:focus-within,
     .stTextArea [data-baseweb="textarea"]:hover,
     .stTextArea [data-baseweb="textarea"]:active,
@@ -147,7 +169,6 @@ st.markdown(
         outline: none !important;
     }
 
-    /* Nuke any nested divs inside that still carry borders */
     .stTextArea > div > div {
         border: none !important;
         background: transparent !important;
@@ -160,7 +181,6 @@ st.markdown(
         box-shadow: none !important;
     }
 
-    /* ========== STYLE ONLY THE ACTUAL TEXTAREA ========== */
     .stTextArea textarea {
         border-radius: 40px !important;
         border: 2px solid red !important;
@@ -205,6 +225,48 @@ st.markdown(
         width: 100px;
         height: 100px;
         object-fit: contain;
+    }
+
+    /* ========== WARNING BANNER WITH BUTTON ========== */
+    .warning-banner {
+        background-color: #FFF3CD;
+        border: 1px solid #FFECB5;
+        border-radius: 12px;
+        padding: 15px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 10px;
+    }
+
+    .warning-banner .warning-text {
+        color: #856404;
+        font-size: 15px;
+        font-weight: 600;
+        margin: 0;
+        flex: 1;
+    }
+
+    /* Style specifically for the "Process Anyway" button */
+    .process-anyway-btn button {
+        background: linear-gradient(90deg, #e65c00, #cc2b5e) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 20px !important;
+        padding: 8px 20px !important;
+        font-size: 0.95em !important;
+        font-weight: bold !important;
+        cursor: pointer !important;
+        white-space: nowrap !important;
+        min-width: 160px !important;
+        transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    }
+
+    .process-anyway-btn button:hover {
+        transform: scale(1.05) !important;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3) !important;
+        color: white !important;
     }
     </style>
     """,
@@ -252,37 +314,50 @@ col1, col2, col3 = st.columns([1, 1, 1])
 with col2:
     analyze_button = st.button("🔍 Analyze Sentiment")
 
+# --- Handle Analyze Button ---
 if analyze_button:
     if not user_input.strip():
+        st.session_state.show_warning = False
         st.error("⚠️ Please enter a review to analyze.")
     elif model is None or tokenizer is None:
+        st.session_state.show_warning = False
         st.error("Model failed to load. Please check the repo ID.")
     else:
         num_tokens = count_tokens(user_input)
         if num_tokens > MAX_TOKENS:
-            st.error(
-                f"⚠️ Your review is too long! It has **{num_tokens} tokens**, but the model supports a maximum of **{MAX_TOKENS} tokens**. "
-                f"Please try a shorter review."
-            )
+            st.session_state.show_warning = True
+            st.session_state.warning_text = user_input
+            st.session_state.warning_tokens = num_tokens
         else:
+            st.session_state.show_warning = False
             with st.spinner("Analyzing sentiment..."):
                 time.sleep(0.5)
                 probs = predict_sentiment(user_input)
-                label, bg_color = get_sentiment_info(probs)
-                confidence = np.max(probs) * 100
+            display_result(probs)
 
-            st.divider()
+# --- Show Warning Banner with "Process Anyway" Button ---
+if st.session_state.show_warning:
+    warn_col1, warn_col2 = st.columns([3, 1])
+    with warn_col1:
+        st.markdown(
+            f"""
+            <div class="warning-banner">
+                <p class="warning-text">⚠️ Your review has <strong>{st.session_state.warning_tokens} tokens</strong>, 
+                which exceeds the model's maximum of <strong>{MAX_TOKENS} tokens</strong>. 
+                The input will be truncated. Results may be less accurate.</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+    with warn_col2:
+        st.write("")
+        st.markdown('<div class="process-anyway-btn">', unsafe_allow_html=True)
+        process_anyway = st.button("⚡ Process Anyway")
+        st.markdown('</div>', unsafe_allow_html=True)
 
-            label_text = label.split()[0]
-            label_emoji = label.split()[1]
-
-            st.markdown(
-                f"""
-                <div style="background-color:{bg_color}; padding: 15px; border-radius: 25px; text-align: center;" class="prediction-box">
-                    <div style="font-size: 3em; margin-bottom: 0; line-height: 1;">{label_emoji}</div>
-                    <h3 style="margin-top: 5px; margin-bottom: 5px;"><strong>Sentiment</strong>: {label_text}</h3>
-                    <p style="font-size: 16px; margin: 0;">(Confidence: {confidence:.2f}%)</p>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+    if process_anyway:
+        st.session_state.show_warning = False
+        with st.spinner("Analyzing sentiment..."):
+            time.sleep(0.5)
+            probs = predict_sentiment(st.session_state.warning_text)
+        display_result(probs)
